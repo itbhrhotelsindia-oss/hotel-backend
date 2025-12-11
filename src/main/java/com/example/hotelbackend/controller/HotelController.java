@@ -10,42 +10,35 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/hotels")
 public class HotelController {
-    private final HotelService hotelService;
-    public HotelController(HotelService hotelService) {
-        this.hotelService = hotelService;
+
+    private final HotelService service;
+
+    public HotelController(HotelService service) {
+        this.service = service;
     }
 
-    @GetMapping
-    public ResponseEntity<List<Hotel>> list(@RequestParam(name = "city", required = false) String city) {
-        if (city != null && !city.trim().isEmpty()) {
-            return ResponseEntity.ok(hotelService.findByCity(city));
-        } else {
-            return ResponseEntity.ok(hotelService.getAll());
-        }
+    // ADD ONE HOTEL
+    @PostMapping("/")
+    public ResponseEntity<Hotel> addHotel(@RequestBody Hotel hotel) {
+        return ResponseEntity.ok(service.addHotel(hotel));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Hotel> get(@PathVariable(name = "id") String id) {
-        return hotelService.getById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    // ADD MULTIPLE HOTELS
+    @PostMapping("/bulk")
+    public ResponseEntity<List<Hotel>> addHotels(@RequestBody List<Hotel> hotels) {
+        return ResponseEntity.ok(service.addHotels(hotels));
     }
 
-    @PostMapping
-    public ResponseEntity<Hotel> create(@RequestBody Hotel hotel) {
-        Hotel saved = hotelService.create(hotel);
-        return ResponseEntity.ok(saved);
+    // List all cities
+    @GetMapping("/cities")
+    public ResponseEntity<List<String>> getCities() {
+        return ResponseEntity.ok(service.getAllCities());
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Hotel> update(@PathVariable String id, @RequestBody Hotel hotel) {
-        hotel.setId(id);
-        return ResponseEntity.ok(hotelService.update(hotel));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable String id) {
-        hotelService.delete(id);
-        return ResponseEntity.noContent().build();
+    // Get hotels in one city
+    @GetMapping("/{city}")
+    public ResponseEntity<List<Hotel>> getHotelsByCity(@PathVariable String city) {
+        return ResponseEntity.ok(service.getHotelsByCity(city));
     }
 }
+

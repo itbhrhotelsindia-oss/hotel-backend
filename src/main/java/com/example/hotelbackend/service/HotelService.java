@@ -5,37 +5,43 @@ import com.example.hotelbackend.repository.HotelRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class HotelService {
-    private final HotelRepository hotelRepository;
 
-    public HotelService(HotelRepository hotelRepository) {
-        this.hotelRepository = hotelRepository;
+    private final HotelRepository repo;
+
+    public HotelService(HotelRepository repo) {
+        this.repo = repo;
     }
 
-    public Hotel create(Hotel hotel) {
-        return hotelRepository.save(hotel);
+    // 1️⃣ ADD HOTEL
+    public Hotel addHotel(Hotel hotel) {
+        return repo.save(hotel);
     }
 
-    public Optional<Hotel> getById(String id) {
-        return hotelRepository.findById(id);
+    public List<Hotel> addHotels(List<Hotel> hotels) {
+        return repo.saveAll(hotels);
     }
 
-    public List<Hotel> getAll() {
-        return hotelRepository.findAll();
+    // 2️⃣ GET ALL CITIES
+    public List<String> getAllCities() {
+        return repo.findAll()
+                .stream()
+                .map(Hotel::getCity)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
     }
 
-    public List<Hotel> findByCity(String city) {
-        return hotelRepository.findByCityIgnoreCase(city);
+    // 3️⃣ GET HOTELS BY CITY
+    public List<Hotel> getHotelsByCity(String city) {
+        return repo.findByCityIgnoreCase(city);
     }
 
-    public Hotel update(Hotel hotel) {
-        return hotelRepository.save(hotel);
-    }
-
-    public void delete(String id) {
-        hotelRepository.deleteById(id);
+    // 4️⃣ GET ALL HOTELS (optional)
+    public List<Hotel> getAllHotels() {
+        return repo.findAll();
     }
 }
