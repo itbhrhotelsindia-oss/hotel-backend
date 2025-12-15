@@ -29,11 +29,12 @@ public class WeddingPageController {
         return ResponseEntity.ok(service.getOne(id));
     }
 
-    // POST new Wedding page JSON
     @PostMapping("/")
-    public ResponseEntity<WeddingPage> create(@RequestBody WeddingPage page) {
-        return ResponseEntity.ok(service.save(page));
+    public ResponseEntity<List<WeddingPage>> create(
+            @RequestBody List<WeddingPage> pages) {
+        return ResponseEntity.ok(service.saveAll(pages));
     }
+
 
     // UPDATE existing
     @PutMapping("/{id}")

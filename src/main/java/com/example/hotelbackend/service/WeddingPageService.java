@@ -32,6 +32,11 @@ public class WeddingPageService {
         return repo.save(data);
     }
 
+    public List<WeddingPage> saveAll(List<WeddingPage> pages) {
+        return repo.saveAll(pages);
+    }
+
+
     public void delete(String id) {
         repo.deleteById(id);
     }

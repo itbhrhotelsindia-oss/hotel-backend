@@ -23,7 +23,7 @@ public class WeddingPage {
 
     private String description;
 
-    private List<Festivity> festivities;
+    private Festivities festivities;
 
     private List<Highlight> highlights;
 
@@ -43,11 +43,19 @@ public class WeddingPage {
     }
 
     @Data
-    public static class Festivity {
+    public static class Festivities {
+        private String id;
+        private String title;
+        private String description;
+        private List<FestivityItem> festivitiesList;
+    }
+
+    @Data
+    public static class FestivityItem {
         private String title;
         private String text;
         private String imageUrl;
-        private String layout;   // text-left or image-left
+        private String layout;
     }
 
     @Data
