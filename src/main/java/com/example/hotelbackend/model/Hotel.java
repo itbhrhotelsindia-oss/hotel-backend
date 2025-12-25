@@ -6,6 +6,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Hotel {
+    private String hotelId;
     private String city;
     private String name;
     private String address;

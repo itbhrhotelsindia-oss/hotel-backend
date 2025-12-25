@@ -1,6 +1,8 @@
 package com.example.hotelbackend.controller;
 
+import com.example.hotelbackend.dto.HotelLookupResponse;
 import com.example.hotelbackend.model.CityHotels;
+import com.example.hotelbackend.model.Hotel;
 import com.example.hotelbackend.service.CityHotelsService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,4 +56,20 @@ public class CityHotelsController {
         service.delete(id);
         return ResponseEntity.ok("City deleted");
     }
+
+    @GetMapping("/hotels/lookup")
+    public List<HotelLookupResponse> hotelLookup() {
+        return service.getHotelLookup();
+    }
+
+    @PostMapping("/{cityId}/hotels")
+    public ResponseEntity<CityHotels> addHotels(
+            @PathVariable String cityId,
+            @RequestBody List<Hotel> newHotels) {
+
+        return ResponseEntity.ok(
+                service.addHotels(cityId, newHotels)
+        );
+    }
+
 }

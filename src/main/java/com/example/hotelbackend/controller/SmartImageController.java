@@ -123,5 +123,4 @@ public class SmartImageController {
 
         return ResponseEntity.ok("Deleted and reordered");
     }
-    //testing 
 }
