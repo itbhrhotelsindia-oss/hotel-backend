@@ -57,13 +57,30 @@ public class PhonePePaymentServiceImpl implements PaymentService {
 
         try {
             JSONObject payload = new JSONObject();
+
+// 🔑 Merchant details
             payload.put("merchantId", merchantId);
             payload.put("merchantTransactionId", booking.getBookingId());
-            payload.put("amount", (int) (booking.getTotalAmount() * 100)); // paise
-            payload.put("redirectUrl", "https://your-frontend.com/payment/phonepe/redirect");
-            payload.put("redirectMode", "POST");
-            payload.put("callbackUrl", "https://hotel-backend-nq72.onrender.com/api/payments/phonepe/webhook");
-            
+
+// 💰 Amount (INR → paise)
+            payload.put("amount", (int) (booking.getTotalAmount() * 100));
+
+// 🌐 Redirect (temporary backend redirect, frontend not ready yet)
+            payload.put(
+                    "redirectUrl",
+                    "https://hotel-backend-nq72.onrender.com/api/public/payments/phonepe/redirect"
+            );
+            payload.put("redirectMode", "GET");
+
+// 🔔 Webhook (MOST IMPORTANT)
+            payload.put(
+                    "callbackUrl",
+                    "https://hotel-backend-nq72.onrender.com/api/payments/phonepe/webhook"
+            );
+
+// 📦 Optional metadata (recommended)
+            payload.put("paymentInstrument", new JSONObject().put("type", "PAY_PAGE"));
+
             JSONObject instrument = new JSONObject();
             instrument.put("type", "PAY_PAGE");
             payload.put("paymentInstrument", instrument);
