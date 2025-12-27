@@ -1,40 +1,42 @@
 package com.example.hotelbackend.model;
 
+import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.time.LocalDate;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 @Document(collection = "bookings")
 public class Booking {
+
     @Id
     private String id;
+
+    private String bookingId;   // BHR-20260110-0001
+
     private String hotelId;
-    private String roomId;
-    private String userId;
-    private LocalDate checkin;
-    private LocalDate checkout;
-    private int guests;
-    private double totalPrice;
-    private String status;
+    private String roomTypeId;
 
-    public Booking() {}
+    private LocalDate checkIn;
+    private LocalDate checkOut;
 
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-    public String getHotelId() { return hotelId; }
-    public void setHotelId(String hotelId) { this.hotelId = hotelId; }
-    public String getRoomId() { return roomId; }
-    public void setRoomId(String roomId) { this.roomId = roomId; }
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
-    public LocalDate getCheckin() { return checkin; }
-    public void setCheckin(LocalDate checkin) { this.checkin = checkin; }
-    public LocalDate getCheckout() { return checkout; }
-    public void setCheckout(LocalDate checkout) { this.checkout = checkout; }
-    public int getGuests() { return guests; }
-    public void setGuests(int guests) { this.guests = guests; }
-    public double getTotalPrice() { return totalPrice; }
-    public void setTotalPrice(double totalPrice) { this.totalPrice = totalPrice; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    private int rooms;
+    private int nights;
+
+    private double totalAmount;
+
+    private String status;      // PENDING, CONFIRMED, CANCELLED
+
+    // Guest info
+    private String guestName;
+    private String guestEmail;
+    private String guestPhone;
+
+    private LocalDateTime createdAt;
 }
+

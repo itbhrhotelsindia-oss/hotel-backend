@@ -46,5 +46,4 @@ public class RoomTypeAdminController {
             @RequestBody BulkCreateRoomTypeRequest request) {
         return service.bulkCreateRoomTypes(request);
     }
-
 }
