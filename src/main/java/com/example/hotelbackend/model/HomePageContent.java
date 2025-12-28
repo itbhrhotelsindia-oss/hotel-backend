@@ -33,6 +33,7 @@ public class HomePageContent {
     @Data
     public static class EventsSection {
         private String title;
+        private String description;
         private List<Event> events;
     }
 
@@ -100,11 +101,13 @@ public class HomePageContent {
     @Data
     public static class BrandDynamicSection {
         private String title;
+        private String description;
         private List<BrandBlock> blocks;
     }
 
     @Data
     public static class BrandBlock {
+        private String name;
         private String layout;
         private String text;
         private String imageUrl;

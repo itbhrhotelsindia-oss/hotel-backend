@@ -72,4 +72,15 @@ public class CityHotelsController {
         );
     }
 
+    // ⭐ DELETE HOTEL BY CITY ID + HOTEL ID
+    @DeleteMapping("/{cityId}/hotels/{hotelId}")
+    public ResponseEntity<String> deleteHotelByCity(
+            @PathVariable String cityId,
+            @PathVariable String hotelId
+    ) {
+        service.deleteHotelByCityId(cityId, hotelId);
+        return ResponseEntity.ok("Hotel deleted successfully");
+    }
+
+
 }

@@ -35,6 +35,7 @@ public class HomePageData {
     @Data
     public static class EventsSection {
         private String title;
+        private String description;
         private List<Event> events;
     }
 
@@ -104,11 +105,13 @@ public class HomePageData {
     @Data
     public static class BrandDynamicSection {
         private String title;
+        private String description;
         private List<BrandBlock> blocks;
     }
 
     @Data
     public static class BrandBlock {
+        private String name;
         private String layout;   // "text-left-image-right" or "image-left-text-right"
         private String text;
         private String imageUrl;

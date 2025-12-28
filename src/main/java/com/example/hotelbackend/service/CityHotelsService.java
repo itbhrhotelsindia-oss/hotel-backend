@@ -170,4 +170,26 @@ public class CityHotelsService {
     }
 
 
+    public void deleteHotelByCityId(String cityId, String hotelId) {
+
+        CityHotels city = repo.findById(cityId)
+                .orElseThrow(() -> new RuntimeException("City not found"));
+
+        if (city.getHotels() == null || city.getHotels().isEmpty()) {
+            throw new RuntimeException("No hotels found for this city");
+        }
+
+        boolean removed = city.getHotels().removeIf(
+                hotel -> hotelId.equals(hotel.getHotelId())
+        );
+
+        if (!removed) {
+            throw new RuntimeException("Hotel not found in this city");
+        }
+
+        repo.save(city);
+    }
+
+
+
 }
