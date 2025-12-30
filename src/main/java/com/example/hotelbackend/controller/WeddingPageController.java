@@ -49,5 +49,42 @@ public class WeddingPageController {
         service.delete(id);
         return ResponseEntity.ok("Wedding page deleted");
     }
+
+    // ➕ Add Festivity Item
+    @PostMapping("/{id}/festivities")
+    public ResponseEntity<WeddingPage> addFestivityItem(
+            @PathVariable String id,
+            @RequestBody WeddingPage.FestivityItem item) {
+
+        return ResponseEntity.ok(service.addFestivityItem(id, item));
+    }
+
+    // ❌ Delete Festivity Item by index
+    @DeleteMapping("/{id}/festivities/{index}")
+    public ResponseEntity<WeddingPage> deleteFestivityItem(
+            @PathVariable String id,
+            @PathVariable int index) {
+
+        return ResponseEntity.ok(service.deleteFestivityItem(id, index));
+    }
+
+    // ➕ Add Wedding Type Item
+    @PostMapping("/{id}/types")
+    public ResponseEntity<WeddingPage> addWeddingTypeItem(
+            @PathVariable String id,
+            @RequestBody WeddingPage.WeddingItem item) {
+
+        return ResponseEntity.ok(service.addWeddingTypeItem(id, item));
+    }
+
+    // ❌ Delete Wedding Type Item by index
+    @DeleteMapping("/{id}/types/{index}")
+    public ResponseEntity<WeddingPage> deleteWeddingTypeItem(
+            @PathVariable String id,
+            @PathVariable int index) {
+
+        return ResponseEntity.ok(service.deleteWeddingTypeItem(id, index));
+    }
+
 }
 

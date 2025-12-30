@@ -25,7 +25,10 @@ public class WeddingPage {
 
     private Festivities festivities;
 
+    private TypeOfWeddings typeOfWeddings;
+
     private List<Highlight> highlights;
+
 
     // INNER CLASSES
 
@@ -52,6 +55,22 @@ public class WeddingPage {
 
     @Data
     public static class FestivityItem {
+        private String title;
+        private String text;
+        private String imageUrl;
+        private String layout;
+    }
+
+    @Data
+    public static class TypeOfWeddings {
+        private String id;
+        private String title;
+        private String description;
+        private List<WeddingItem> weddingList;
+    }
+
+    @Data
+    public static class WeddingItem {
         private String title;
         private String text;
         private String imageUrl;
