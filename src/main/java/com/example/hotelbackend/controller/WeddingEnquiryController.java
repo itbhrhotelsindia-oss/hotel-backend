@@ -2,6 +2,7 @@ package com.example.hotelbackend.controller;
 
 import com.example.hotelbackend.model.WeddingEnquiry;
 import com.example.hotelbackend.service.WeddingEnquiryService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,9 +21,10 @@ public class WeddingEnquiryController {
     // ⭐ SUBMIT ENQUIRY (Frontend uses this)
     @PostMapping
     public ResponseEntity<WeddingEnquiry> submit(
-            @RequestBody WeddingEnquiry enquiry) {
+            @Valid @RequestBody WeddingEnquiry enquiry) {
         return ResponseEntity.ok(service.submit(enquiry));
     }
+
 
     // ⭐ ADMIN - GET ALL ENQUIRIES
     @GetMapping
