@@ -16,6 +16,8 @@ public class BlogHomeContent {
     private String title;
     private String description;
 
+    private Rating rating;
+
     private List<String> blogImages;
 
     private BlogListSection blogListSection;
@@ -49,4 +51,13 @@ public class BlogHomeContent {
         private String imageUrl;
         private String htmlContent; // rich HTML
     }
+
+    @Data
+    public static class Rating {
+        private String highlightText;
+        private int stars;      // 1–5
+        private String score;   // "5.0/5"
+        private String label;   // "Reviews"
+    }
+
 }
