@@ -33,7 +33,7 @@ public class WeddingEnquiryService {
         WeddingEnquiry saved = repository.save(enquiry);
 
         // 📧 SEND OWNER EMAIL
-       // sendOwnerNotification(saved);
+        sendOwnerNotification(saved);
 
         return saved;
     }

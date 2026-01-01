@@ -32,7 +32,7 @@ public class PartnerWithUsService {
         PartnerWithUsEnquiry saved = repository.save(enquiry);
 
         // 📧 SEND EMAIL TO OWNER
-       // sendOwnerNotification(saved);
+       sendOwnerNotification(saved);
 
         return saved;
     }
