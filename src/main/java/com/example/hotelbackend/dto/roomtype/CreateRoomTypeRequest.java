@@ -9,4 +9,5 @@ public class CreateRoomTypeRequest {
     private String name;
     private String description;
     private int maxGuests;
+    private double basePrice;
 }

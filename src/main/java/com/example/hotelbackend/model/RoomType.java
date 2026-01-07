@@ -22,6 +22,8 @@ public class RoomType {
     private String description;
     private int maxGuests;
 
+    private double basePrice;
+
     private boolean isActive;
 
     private Instant createdAt;

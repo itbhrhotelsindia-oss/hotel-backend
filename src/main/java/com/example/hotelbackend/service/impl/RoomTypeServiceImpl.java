@@ -26,7 +26,7 @@ public class RoomTypeServiceImpl implements RoomTypeService {
 
         if (repository.existsByHotelIdAndNameIgnoreCase(
                 request.getHotelId(), request.getName())) {
-            throw new RuntimeException("Room type already exists for this hotel");
+            throw new RuntimeException("Room type already exists");
         }
 
         RoomType roomType = RoomType.builder()
@@ -34,12 +34,14 @@ public class RoomTypeServiceImpl implements RoomTypeService {
                 .name(request.getName())
                 .description(request.getDescription())
                 .maxGuests(request.getMaxGuests())
+                .basePrice(request.getBasePrice()) // ✅
                 .isActive(true)
                 .createdAt(Instant.now())
                 .build();
 
         return repository.save(roomType);
     }
+
 
     @Override
     public List<RoomType> getActiveRoomTypes(String hotelId) {
@@ -55,7 +57,7 @@ public class RoomTypeServiceImpl implements RoomTypeService {
         roomType.setName(request.getName());
         roomType.setDescription(request.getDescription());
         roomType.setMaxGuests(request.getMaxGuests());
-
+        roomType.setBasePrice(request.getBasePrice());
         return repository.save(roomType);
     }
 
@@ -86,6 +88,7 @@ public class RoomTypeServiceImpl implements RoomTypeService {
                     .name(rt.getName())
                     .description(rt.getDescription())
                     .maxGuests(rt.getMaxGuests())
+                    .basePrice(rt.getBasePrice())
                     .isActive(true)
                     .createdAt(Instant.now())
                     .build();

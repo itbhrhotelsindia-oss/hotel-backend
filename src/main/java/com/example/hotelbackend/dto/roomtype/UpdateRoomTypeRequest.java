@@ -8,4 +8,5 @@ public class UpdateRoomTypeRequest {
     private String name;
     private String description;
     private int maxGuests;
+    private double basePrice;
 }

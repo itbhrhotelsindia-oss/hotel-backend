@@ -4,31 +4,42 @@ import com.example.hotelbackend.dto.inventory.UpsertInventoryRequest;
 import com.example.hotelbackend.dto.inventory.UpdateInventoryForDateRequest;
 import com.example.hotelbackend.dto.inventory.UpdateInventoryStatusRequest;
 import com.example.hotelbackend.model.RoomInventory;
+import com.example.hotelbackend.model.RoomType;
 import com.example.hotelbackend.repository.RoomInventoryRepository;
+import com.example.hotelbackend.repository.RoomTypeRepository;
 import com.example.hotelbackend.service.InventoryService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class InventoryServiceImpl implements InventoryService {
 
-    private final RoomInventoryRepository repository;
+    private final RoomInventoryRepository inventoryRepo;
+    private final RoomTypeRepository roomTypeRepo;
 
-    public InventoryServiceImpl(RoomInventoryRepository repository) {
-        this.repository = repository;
+    public InventoryServiceImpl(
+            RoomInventoryRepository inventoryRepo,
+            RoomTypeRepository roomTypeRepo
+    ) {
+        this.inventoryRepo = inventoryRepo;
+        this.roomTypeRepo = roomTypeRepo;
     }
 
-    /* =========================================================
-       CREATE / UPDATE INVENTORY FOR DATE RANGE
-       ========================================================= */
-
+    /* ============================
+       UPSERT INVENTORY (DATE RANGE)
+       ============================ */
     @Override
     public List<RoomInventory> upsertInventory(UpsertInventoryRequest request) {
 
-        validateDateRange(request.getStartDate(), request.getEndDate());
+        RoomType roomType = roomTypeRepo.findById(request.getRoomTypeId())
+                .orElseThrow(() -> new RuntimeException("Room type not found"));
+
+        double basePrice = roomType.getBasePrice();
 
         List<RoomInventory> result = new ArrayList<>();
 
@@ -36,45 +47,43 @@ public class InventoryServiceImpl implements InventoryService {
 
         while (!date.isAfter(request.getEndDate())) {
 
-            RoomInventory inventory = repository
+            RoomInventory inventory = inventoryRepo
                     .findByHotelIdAndRoomTypeIdAndDate(
                             request.getHotelId(),
                             request.getRoomTypeId(),
                             date
                     )
-                    .orElse(null);
+                    .orElse(RoomInventory.builder()
+                            .hotelId(request.getHotelId())
+                            .roomTypeId(request.getRoomTypeId())
+                            .date(date)
+                            .active(true)
+                            .build()
+                    );
 
-            if (inventory == null) {
-                inventory = createNewInventory(request, date);
-            }
-
-            // Update logic
             inventory.setTotalRooms(request.getTotalRooms());
+            inventory.setAvailableRooms(request.getTotalRooms());
 
-            // IMPORTANT RULE
-            if (inventory.getAvailableRooms() > request.getTotalRooms()) {
-                inventory.setAvailableRooms(request.getTotalRooms());
-            }
+            inventory.setPricePerNight(
+                    request.getPricePerNight() > 0
+                            ? request.getPricePerNight()
+                            : basePrice
+            );
 
-            inventory.setPricePerNight(request.getPricePerNight());
-            inventory.setActive(true);
-
-            result.add(repository.save(inventory));
-
+            result.add(inventoryRepo.save(inventory));
             date = date.plusDays(1);
         }
 
         return result;
     }
 
-    /* =========================================================
-       UPDATE INVENTORY FOR SINGLE DATE
-       ========================================================= */
-
+    /* ============================
+       UPDATE SINGLE DATE
+       ============================ */
     @Override
     public RoomInventory updateInventoryForDate(UpdateInventoryForDateRequest request) {
 
-        RoomInventory inventory = repository
+        RoomInventory inventory = inventoryRepo
                 .findByHotelIdAndRoomTypeIdAndDate(
                         request.getHotelId(),
                         request.getRoomTypeId(),
@@ -83,29 +92,24 @@ public class InventoryServiceImpl implements InventoryService {
                 .orElseThrow(() -> new RuntimeException("Inventory not found"));
 
         if (request.getTotalRooms() != null) {
-
-            if (inventory.getAvailableRooms() > request.getTotalRooms()) {
-                inventory.setAvailableRooms(request.getTotalRooms());
-            }
-
             inventory.setTotalRooms(request.getTotalRooms());
+            inventory.setAvailableRooms(request.getTotalRooms());
         }
 
         if (request.getPricePerNight() != null) {
             inventory.setPricePerNight(request.getPricePerNight());
         }
 
-        return repository.save(inventory);
+        return inventoryRepo.save(inventory);
     }
 
-    /* =========================================================
-       BLOCK / UNBLOCK INVENTORY
-       ========================================================= */
-
+    /* ============================
+       BLOCK / UNBLOCK
+       ============================ */
     @Override
     public RoomInventory updateInventoryStatus(UpdateInventoryStatusRequest request) {
 
-        RoomInventory inventory = repository
+        RoomInventory inventory = inventoryRepo
                 .findByHotelIdAndRoomTypeIdAndDate(
                         request.getHotelId(),
                         request.getRoomTypeId(),
@@ -114,14 +118,12 @@ public class InventoryServiceImpl implements InventoryService {
                 .orElseThrow(() -> new RuntimeException("Inventory not found"));
 
         inventory.setActive(request.isActive());
-
-        return repository.save(inventory);
+        return inventoryRepo.save(inventory);
     }
 
-    /* =========================================================
-       READ INVENTORY (UI / BOOKING)
-       ========================================================= */
-
+    /* ============================
+       GET INVENTORY (FULL CALENDAR)
+       ============================ */
     @Override
     public List<RoomInventory> getInventory(
             String hotelId,
@@ -130,37 +132,47 @@ public class InventoryServiceImpl implements InventoryService {
             String endDate
     ) {
 
-        return repository.findByHotelIdAndRoomTypeIdAndDateBetween(
-                hotelId,
-                roomTypeId,
-                LocalDate.parse(startDate),
-                LocalDate.parse(endDate)
-        );
-    }
+        RoomType roomType = roomTypeRepo.findById(roomTypeId)
+                .orElseThrow(() -> new RuntimeException("Room type not found"));
 
-    /* =========================================================
-       PRIVATE HELPERS
-       ========================================================= */
+        double basePrice = roomType.getBasePrice();
 
-    private RoomInventory createNewInventory(
-            UpsertInventoryRequest request,
-            LocalDate date
-    ) {
-        return RoomInventory.builder()
-                .hotelId(request.getHotelId())
-                .roomTypeId(request.getRoomTypeId())
-                .date(date)
-                .totalRooms(request.getTotalRooms())
-                .availableRooms(request.getTotalRooms())
-                .pricePerNight(request.getPricePerNight())
-                .active(true)
-                .build();
-    }
+        LocalDate start = LocalDate.parse(startDate);
+        LocalDate end = LocalDate.parse(endDate);
 
-    private void validateDateRange(LocalDate start, LocalDate end) {
-        if (start.isAfter(end)) {
-            throw new IllegalArgumentException("Start date cannot be after end date");
+        List<RoomInventory> existing = inventoryRepo
+                .findByHotelIdAndRoomTypeIdAndDateBetween(
+                        hotelId, roomTypeId, start, end
+                );
+
+        Map<LocalDate, RoomInventory> map = existing.stream()
+                .collect(Collectors.toMap(RoomInventory::getDate, i -> i));
+
+        List<RoomInventory> result = new ArrayList<>();
+
+        LocalDate date = start;
+
+        while (!date.isAfter(end)) {
+
+            RoomInventory inventory = map.getOrDefault(
+                    date,
+                    RoomInventory.builder()
+                            .hotelId(hotelId)
+                            .roomTypeId(roomTypeId)
+                            .date(date)
+                            .pricePerNight(basePrice)
+                            .totalRooms(0)
+                            .availableRooms(0)
+                            .active(true)
+                            .build()
+            );
+
+            result.add(inventory);
+            date = date.plusDays(1);
         }
+
+        return result;
     }
 }
+
 
