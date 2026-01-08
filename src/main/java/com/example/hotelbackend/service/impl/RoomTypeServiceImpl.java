@@ -24,10 +24,11 @@ public class RoomTypeServiceImpl implements RoomTypeService {
     @Override
     public RoomType createRoomType(CreateRoomTypeRequest request) {
 
-        if (repository.existsByHotelIdAndNameIgnoreCase(
+        if (repository.existsByHotelIdAndNameIgnoreCaseAndIsActiveTrue(
                 request.getHotelId(), request.getName())) {
-            throw new RuntimeException("Room type already exists");
+            throw new RuntimeException("Active room type already exists");
         }
+
 
         RoomType roomType = RoomType.builder()
                 .hotelId(request.getHotelId())
@@ -78,10 +79,11 @@ public class RoomTypeServiceImpl implements RoomTypeService {
 
         for (CreateRoomTypeRequest rt : request.getRoomTypes()) {
 
-            if (repository.existsByHotelIdAndNameIgnoreCase(
+            if (repository.existsByHotelIdAndNameIgnoreCaseAndIsActiveTrue(
                     request.getHotelId(), rt.getName())) {
-                continue; // skip duplicates
+                continue;
             }
+
 
             RoomType roomType = RoomType.builder()
                     .hotelId(request.getHotelId())

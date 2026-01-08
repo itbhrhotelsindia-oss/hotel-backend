@@ -9,5 +9,8 @@ public interface RoomTypeRepository extends MongoRepository<RoomType, String> {
 
     List<RoomType> findByHotelIdAndIsActiveTrue(String hotelId);
 
-    boolean existsByHotelIdAndNameIgnoreCase(String hotelId, String name);
+    boolean existsByHotelIdAndNameIgnoreCaseAndIsActiveTrue(
+            String hotelId,
+            String name
+    );
 }
