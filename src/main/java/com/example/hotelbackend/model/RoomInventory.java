@@ -21,7 +21,7 @@ public class RoomInventory {
     private String roomTypeId;     // RoomType._id
 
     // 📅 Inventory is PER DAY
-    private LocalDate date;
+    private String date;
 
     // 🏨 Capacity
     private int totalRooms;

@@ -18,15 +18,15 @@ public interface RoomInventoryRepository extends MongoRepository<RoomInventory, 
     List<RoomInventory> findByHotelIdAndRoomTypeIdAndDateBetween(
             String hotelId,
             String roomTypeId,
-            LocalDate startDate,
-            LocalDate endDate
+            String startDate,
+            String endDate
     );
 
     // Get inventory for a specific date
     Optional<RoomInventory> findByHotelIdAndRoomTypeIdAndDate(
             String hotelId,
             String roomTypeId,
-            LocalDate date
+            String date
     );
 
     /* =========================================================
