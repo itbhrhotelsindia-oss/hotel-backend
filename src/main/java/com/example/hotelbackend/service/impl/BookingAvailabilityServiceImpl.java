@@ -25,56 +25,55 @@ public class BookingAvailabilityServiceImpl implements BookingAvailabilityServic
         LocalDate checkIn = LocalDate.parse(request.getCheckIn());
         LocalDate checkOut = LocalDate.parse(request.getCheckOut());
 
-        // 🔴 checkOut is exclusive → subtract 1 day
-        LocalDate lastNight = checkOut.minusDays(1);
+        List<RoomInventory> inventories = new ArrayList<>();
 
-        // 1️⃣ Fetch all VALID inventory in ONE query
-        List<RoomInventory> inventories =
-                inventoryRepository.findAvailableInventory(
-                        request.getHotelId(),
-                        request.getRoomTypeId(),
-                        checkIn,
-                        checkOut,
-                        request.getRoomsRequested() - 1
+        // 🔁 CHECK EACH DATE INDIVIDUALLY (STRING DATE MATCH)
+        for (LocalDate date = checkIn; date.isBefore(checkOut); date = date.plusDays(1)) {
+
+            String dateKey = date.toString(); // yyyy-MM-dd
+
+            RoomInventory inv = inventoryRepository
+                    .findByHotelIdAndRoomTypeIdAndDate(
+                            request.getHotelId(),
+                            request.getRoomTypeId(),
+                            dateKey
+                    )
+                    .orElse(null);
+
+            if (inv == null
+                    || !inv.isActive()
+                    || inv.getAvailableRooms() < request.getRoomsRequested()) {
+
+                return new AvailabilityFailureResponse(
+                        false,
+                        "NOT_AVAILABLE_FOR_ALL_DATES",
+                        dateKey
                 );
+            }
 
-
-        // 2️⃣ Validate count (critical)
-        long expectedNights = checkIn.until(checkOut).getDays();
-
-        if (inventories.size() != expectedNights) {
-            return new AvailabilityFailureResponse(
-                    false,
-                    "NOT_AVAILABLE_FOR_ALL_DATES",
-                    null
-            );
+            inventories.add(inv);
         }
 
-        // 3️⃣ Calculate price
+        // 💰 PRICE CALCULATION
         List<PriceBreakup> breakup = new ArrayList<>();
-        double totalAmount = 0;
+        long totalAmount = 0;
 
         for (RoomInventory inv : inventories) {
-            double dailyPrice = inv.getPricePerNight() * request.getRoomsRequested();
+            long dailyPrice =
+                    (long) inv.getPricePerNight() * request.getRoomsRequested();
 
-            breakup.add(new PriceBreakup(
-                    inv.getDate().toString(),
-                    dailyPrice
-            ));
-
+            breakup.add(new PriceBreakup(inv.getDate(), dailyPrice));
             totalAmount += dailyPrice;
-
         }
 
         return new AvailabilityResponse(
                 true,
                 request.getHotelId(),
                 request.getRoomTypeId(),
-                (int) expectedNights,
+                inventories.size(),
                 request.getRoomsRequested(),
-                (long) totalAmount,
+                totalAmount,
                 breakup
         );
     }
 }
-
