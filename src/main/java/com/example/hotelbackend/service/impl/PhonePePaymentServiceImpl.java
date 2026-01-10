@@ -48,8 +48,12 @@ public class PhonePePaymentServiceImpl implements PaymentService {
     @Override
     public JSONObject createOrder(String bookingId) {
 
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        Booking booking = bookingRepository.findByBookingId(bookingId)
+                .orElseThrow(() ->
+                        new RuntimeException("Booking not found for bookingId=" + bookingId)
+                );
+
 
         if (!"PENDING".equals(booking.getStatus())) {
             throw new RuntimeException("Payment not allowed for booking status");
@@ -121,8 +125,10 @@ public class PhonePePaymentServiceImpl implements PaymentService {
     @Override
     public void verifyAndConfirmPayment(VerifyPaymentRequest request) {
 
-        Booking booking = bookingRepository.findById(request.getBookingId())
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+        Booking booking = bookingRepository.findByBookingId(request.getBookingId())
+                .orElseThrow(() ->
+                        new RuntimeException("Booking not found for bookingId=" + request.getBookingId())
+                );
 
         if ("SUCCESS".equalsIgnoreCase(request.getState())) {
 
@@ -136,6 +142,7 @@ public class PhonePePaymentServiceImpl implements PaymentService {
             rollbackService.rollbackInventory(booking);
         }
     }
+
 
 
     /* =========================================================

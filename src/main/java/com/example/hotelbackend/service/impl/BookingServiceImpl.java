@@ -9,6 +9,8 @@ import com.example.hotelbackend.service.BookingService;
 import com.example.hotelbackend.service.InventoryReservationService;
 import com.example.hotelbackend.repository.BookingRepository;
 import org.springframework.stereotype.Service;
+import com.example.hotelbackend.service.EmailService;
+
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,15 +23,18 @@ public class BookingServiceImpl implements BookingService {
     private final BookingAvailabilityService availabilityService;
     private final InventoryReservationService reservationService;
     private final BookingRepository bookingRepository;
+    private final EmailService emailService;
+
 
     public BookingServiceImpl(
             BookingAvailabilityService availabilityService,
             InventoryReservationService reservationService,
-            BookingRepository bookingRepository
+            BookingRepository bookingRepository, EmailService emailService
     ) {
         this.availabilityService = availabilityService;
         this.reservationService = reservationService;
         this.bookingRepository = bookingRepository;
+        this.emailService = emailService;
     }
 
     @Override
@@ -84,11 +89,69 @@ public class BookingServiceImpl implements BookingService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        return bookingRepository.save(booking);
+        Booking savedBooking = bookingRepository.save(booking);
+
+// 📧 Send emails (NON-BLOCKING)
+        sendBookingEmails(savedBooking);
+
+        return savedBooking;
+
     }
 
     private String generateBookingId() {
         return "BHR-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
+
+    private void sendBookingEmails(Booking booking) {
+
+        try {
+            // ==========================
+            // 1️⃣ Guest Email
+            // ==========================
+            String guestSubject = "Booking Created - " + booking.getBookingId();
+
+            String guestBody =
+                    "Dear " + booking.getGuestName() + ",\n\n" +
+                            "Your booking has been created successfully.\n\n" +
+                            "Booking ID: " + booking.getBookingId() + "\n" +
+                            "Check-in: " + booking.getCheckIn() + "\n" +
+                            "Check-out: " + booking.getCheckOut() + "\n" +
+                            "Rooms: " + booking.getRooms() + "\n" +
+                            "Total Amount: ₹" + booking.getTotalAmount() + "\n\n" +
+                            "Status: PENDING (Payment required)\n\n" +
+                            "Thank you for choosing us.\n" +
+                            "BHR Hotels India";
+
+            emailService.sendEmail(
+                    booking.getGuestEmail(),
+                    guestSubject,
+                    guestBody
+            );
+
+            // ==========================
+            // 2️⃣ Owner Email
+            // ==========================
+            String ownerSubject = "New Booking Received - " + booking.getBookingId();
+
+            String ownerBody =
+                    "New booking received:\n\n" +
+                            "Booking ID: " + booking.getBookingId() + "\n" +
+                            "Guest Name: " + booking.getGuestName() + "\n" +
+                            "Guest Phone: " + booking.getGuestPhone() + "\n" +
+                            "Guest Email: " + booking.getGuestEmail() + "\n" +
+                            "Check-in: " + booking.getCheckIn() + "\n" +
+                            "Check-out: " + booking.getCheckOut() + "\n" +
+                            "Rooms: " + booking.getRooms() + "\n" +
+                            "Total Amount: ₹" + booking.getTotalAmount();
+
+            emailService.notifyOwner(ownerSubject, ownerBody);
+
+        } catch (Exception e) {
+            // ❗ NEVER break booking flow due to email failure
+            System.err.println("Email sending failed for booking " +
+                    booking.getBookingId() + ": " + e.getMessage());
+        }
+    }
+
 }
 
