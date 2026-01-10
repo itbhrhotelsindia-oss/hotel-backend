@@ -30,11 +30,14 @@ public class InventoryReservationServiceImpl implements InventoryReservationServ
 
         for (LocalDate date = checkIn; date.isBefore(checkOut); date = date.plusDays(1)) {
 
+            // 🔑 CONVERT LocalDate → String (yyyy-MM-dd)
+            String dateStr = date.toString();
+
             Query query = new Query();
             query.addCriteria(
                     Criteria.where("hotelId").is(hotelId)
                             .and("roomTypeId").is(roomTypeId)
-                            .and("date").is(date)
+                            .and("date").is(dateStr)   // ✅ FIX HERE
                             .and("active").is(true)
                             .and("availableRooms").gte(roomsRequested)
             );
@@ -52,10 +55,9 @@ public class InventoryReservationServiceImpl implements InventoryReservationServ
             // ❌ If even one day fails → stop immediately
             if (updated == null) {
                 throw new RuntimeException(
-                        "Inventory reservation failed for date: " + date
+                        "Inventory reservation failed for date: " + dateStr
                 );
             }
         }
     }
 }
-
