@@ -61,7 +61,9 @@ public class InventoryServiceImpl implements InventoryService {
             inventory.setTotalRooms(request.getTotalRooms());
             inventory.setAvailableRooms(request.getTotalRooms());
             inventory.setPricePerNight(request.getPricePerNight());
-            inventory.setActive(true);
+            inventory.setActive(false);
+            inventory.setPublished(false);
+
 
             saved.add(inventoryRepo.save(inventory));
             date = date.plusDays(1);
@@ -151,7 +153,7 @@ public class InventoryServiceImpl implements InventoryService {
         LocalDate end = LocalDate.parse(endDate);
 
         List<RoomInventory> existing = inventoryRepo
-                .findByHotelIdAndRoomTypeIdAndDateBetween(
+                .findInventoryForRange(
                         hotelId,
                         roomTypeId,
                         startDate,
@@ -180,7 +182,8 @@ public class InventoryServiceImpl implements InventoryService {
                             .pricePerNight(basePrice)
                             .totalRooms(0)
                             .availableRooms(0)
-                            .active(true)
+                            .active(false)          // ❗ inactive by default
+                            .published(false)       // ❗ DRAFT
                             .build()
             );
 
@@ -190,4 +193,41 @@ public class InventoryServiceImpl implements InventoryService {
 
         return result;
     }
+
+
+    @Override
+    public void publishInventory(UpsertInventoryRequest request) {
+
+        LocalDate date = request.getStartDate();
+
+        while (!date.isAfter(request.getEndDate())) {
+
+            String dateKey = date.toString();
+
+            RoomInventory inventory =
+                    inventoryRepo.findByHotelIdAndRoomTypeIdAndDate(
+                                    request.getHotelId(),
+                                    request.getRoomTypeId(),
+                                    dateKey
+                            )
+                            .orElseGet(() -> RoomInventory.builder()
+                                    .hotelId(request.getHotelId())
+                                    .roomTypeId(request.getRoomTypeId())
+                                    .date(dateKey)
+                                    .build()
+                            );
+
+            inventory.setTotalRooms(request.getTotalRooms());
+            inventory.setAvailableRooms(request.getTotalRooms());
+            inventory.setPricePerNight(request.getPricePerNight());
+
+            inventory.setPublished(true);   // ✅ KEY
+            inventory.setActive(true);      // ✅ OPEN after publish
+
+            inventoryRepo.save(inventory);
+
+            date = date.plusDays(1);
+        }
+    }
+
 }

@@ -25,5 +25,8 @@ public interface InventoryService {
             String startDate,
             String endDate
     );
+
+    void publishInventory(UpsertInventoryRequest request);
+
 }
 

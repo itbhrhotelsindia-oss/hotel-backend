@@ -31,6 +31,8 @@ public class RoomInventory {
     private double pricePerNight;
 
     // 🔒 Control
-    private boolean active;        // true = open for booking, false = blocked
+    private boolean active;
+
+    private boolean published;// true = open for booking, false = blocked
 }
 

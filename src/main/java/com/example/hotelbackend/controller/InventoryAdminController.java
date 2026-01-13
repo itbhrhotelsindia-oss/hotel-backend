@@ -69,5 +69,14 @@ public class InventoryAdminController {
                 service.getInventory(hotelId, roomTypeId, startDate, endDate)
         );
     }
+
+    @PostMapping("/publish")
+    public ResponseEntity<?> publishInventory(
+            @RequestBody UpsertInventoryRequest request
+    ) {
+        service.publishInventory(request);
+        return ResponseEntity.ok().build();
+    }
+
 }
 

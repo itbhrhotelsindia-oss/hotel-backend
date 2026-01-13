@@ -15,12 +15,20 @@ public interface RoomInventoryRepository extends MongoRepository<RoomInventory, 
        ========================================================= */
 
     // Get inventory for a room type between dates (ADMIN calendar view)
-    List<RoomInventory> findByHotelIdAndRoomTypeIdAndDateBetween(
+    @Query("""
+{
+  hotelId: ?0,
+  roomTypeId: ?1,
+  date: { $gte: ?2, $lte: ?3 }
+}
+""")
+    List<RoomInventory> findInventoryForRange(
             String hotelId,
             String roomTypeId,
             String startDate,
             String endDate
     );
+
 
     // Get inventory for a specific date
     Optional<RoomInventory> findByHotelIdAndRoomTypeIdAndDate(
@@ -44,14 +52,16 @@ public interface RoomInventoryRepository extends MongoRepository<RoomInventory, 
      * Uses @Query to avoid MongoDB duplicate date criteria bug.
      */
     @Query("""
-    {
-      hotelId: ?0,
-      roomTypeId: ?1,
-      date: { $gte: ?2, $lt: ?3 },
-      active: true,
-      availableRooms: { $gt: ?4 }
-    }
-    """)
+{
+  hotelId: ?0,
+  roomTypeId: ?1,
+  date: { $gte: ?2, $lt: ?3 },
+  published: true,
+  active: true,
+  availableRooms: { $gt: ?4 }
+}
+""")
+
     List<RoomInventory> findAvailableInventory(
             String hotelId,
             String roomTypeId,

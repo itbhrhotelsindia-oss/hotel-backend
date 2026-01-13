@@ -42,6 +42,7 @@ public class BookingAvailabilityServiceImpl implements BookingAvailabilityServic
 
             if (inv == null
                     || !inv.isActive()
+                    || !inv.isPublished()
                     || inv.getAvailableRooms() < request.getRoomsRequested()) {
 
                 return new AvailabilityFailureResponse(
