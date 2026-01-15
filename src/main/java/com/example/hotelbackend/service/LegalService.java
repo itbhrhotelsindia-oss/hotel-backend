@@ -1,4 +1,5 @@
 package com.example.hotelbackend.service;
+
 import com.example.hotelbackend.dto.legal.LegalPageResponse;
 import com.example.hotelbackend.dto.legal.LegalSection;
 import org.springframework.stereotype.Service;
@@ -15,8 +16,12 @@ public class LegalService {
                 "2025-01-01",
                 List.of(
                         new LegalSection(
+                                "Legal Notice",
+                                "This document is an electronic record in terms of the Information Technology Act, 2000 and the rules made thereunder. This document does not require any physical or digital signatures."
+                        ),
+                        new LegalSection(
                                 "Business Information",
-                                "This website www.bhrhotelsindia.com is owned and operated by BHR Hotels India LLP, registered at Plot No GH-4B, Arihant Abode, Greater Noida, Uttar Pradesh – 201310, India."
+                                "This website www.bhrhotelsindia.com is owned and operated by BHR Hotels India LLP, a limited liability partnership having its registered office at Plot No GH-4B, Arihant Abode, Greater Noida, Uttar Pradesh – 201310, India."
                         ),
                         new LegalSection(
                                 "Contact Details",
@@ -24,31 +29,39 @@ public class LegalService {
                         ),
                         new LegalSection(
                                 "Nature of Services",
-                                "We provide hotel booking, room reservation, and hospitality-related services."
+                                "BHR Hotels India LLP provides hotel booking, room reservation, and hospitality-related services through its website."
                         ),
                         new LegalSection(
                                 "User Obligations",
-                                "Users must provide accurate information and use the platform lawfully."
+                                "Users agree to provide accurate information, use the platform lawfully, and not engage in fraudulent or unauthorized activities."
                         ),
                         new LegalSection(
                                 "Payments",
-                                "Payments are securely processed via authorized payment gateways."
+                                "All payments are processed securely through authorized payment gateways. Prices are displayed before payment, and successful payment confirms the booking as per the details shown at checkout."
                         ),
                         new LegalSection(
                                 "Limitation of Liability",
-                                "We are not liable for downtime or third-party service failures."
+                                "BHR Hotels India LLP shall not be liable for website downtime, third-party service failures, or circumstances beyond reasonable control."
+                        ),
+                        new LegalSection(
+                                "Indemnity",
+                                "Users agree to indemnify and hold harmless BHR Hotels India LLP from any claims arising due to misuse of the platform or violation of these terms."
+                        ),
+                        new LegalSection(
+                                "Force Majeure",
+                                "The company shall not be liable for failure to perform obligations due to events beyond reasonable control including natural disasters, government actions, or technical failures."
                         ),
                         new LegalSection(
                                 "Intellectual Property",
-                                "All website content is owned by BHR Hotels India LLP."
+                                "All content on this website, including text, graphics, and design, is the intellectual property of BHR Hotels India LLP."
                         ),
                         new LegalSection(
-                                "Governing Law",
-                                "Governed by Indian law with jurisdiction in Uttar Pradesh."
+                                "Governing Law and Jurisdiction",
+                                "These terms shall be governed by the laws of India, with exclusive jurisdiction of the courts of Uttar Pradesh, India."
                         ),
                         new LegalSection(
                                 "Grievance Officer",
-                                "Preetam Chaubey | Email: bhrhotelsindia@gmail.com | Phone: 9211283334 | Mon–Fri (9 AM – 6 PM)"
+                                "Name: Preetam Chaubey | Designation: Grievance Officer | Company: BHR Hotels India LLP | Email: bhrhotelsindia@gmail.com | Phone: 9211283334 | Working Hours: Mon–Fri (9 AM – 6 PM)"
                         )
                 )
         );
@@ -62,35 +75,39 @@ public class LegalService {
                 List.of(
                         new LegalSection(
                                 "Introduction",
-                                "This policy explains how we collect and protect your personal data."
+                                "This Privacy Policy describes how BHR Hotels India LLP collects, uses, and protects your personal data. Our services are offered only within India, and data is processed in accordance with applicable Indian laws."
                         ),
                         new LegalSection(
                                 "Information We Collect",
-                                "Name, phone, email, booking details, and payment reference IDs only."
+                                "We may collect name, phone number, email address, booking details, and payment reference identifiers. We do not store card, UPI, or banking details."
                         ),
                         new LegalSection(
                                 "Use of Information",
-                                "Used for bookings, confirmations, support, and legal compliance."
+                                "Information is used to process bookings, send confirmations, provide customer support, and comply with legal obligations."
                         ),
                         new LegalSection(
                                 "Sharing of Information",
-                                "Shared only with payment gateways and legal authorities."
+                                "Information may be shared only with authorized payment gateways and legal or regulatory authorities when required by law."
                         ),
                         new LegalSection(
                                 "Data Security",
-                                "We apply reasonable security practices."
+                                "We implement reasonable security practices to protect personal data from unauthorized access or disclosure."
+                        ),
+                        new LegalSection(
+                                "Data Retention and Deletion",
+                                "Personal data is retained only as long as necessary for business or legal purposes and may be deleted upon request, subject to applicable laws."
                         ),
                         new LegalSection(
                                 "User Rights",
-                                "You may request access, correction, or deletion of your data."
+                                "Users may request access, correction, or deletion of their personal data by contacting us."
                         ),
                         new LegalSection(
                                 "Consent",
-                                "Using the website implies consent to this policy."
+                                "By using this website, you consent to the collection and use of information in accordance with this Privacy Policy."
                         ),
                         new LegalSection(
                                 "Grievance Officer",
-                                "Preetam Chaubey | Email: bhrhotelsindia@gmail.com | Phone: 9211283334"
+                                "Name: Preetam Chaubey | Designation: Grievance Officer | Company: BHR Hotels India LLP | Email: bhrhotelsindia@gmail.com | Phone: 9211283334"
                         )
                 )
         );
@@ -103,20 +120,24 @@ public class LegalService {
                 "2025-01-01",
                 List.of(
                         new LegalSection(
+                                "Policy Overview",
+                                "This Refund and Cancellation Policy is issued by BHR Hotels India LLP."
+                        ),
+                        new LegalSection(
                                 "Booking Cancellation",
-                                "Cancellations are allowed as per the booking terms."
+                                "Cancellations are allowed as per the cancellation terms displayed at the time of booking."
                         ),
                         new LegalSection(
                                 "Refund Policy",
-                                "Eligible refunds are processed within 5–7 business days."
+                                "Eligible refunds will be processed to the original payment method within 5–7 business days after approval."
                         ),
                         new LegalSection(
                                 "Non-Refundable Cases",
-                                "No-shows and late cancellations are non-refundable."
+                                "No-shows and cancellations made outside the permitted cancellation window are non-refundable."
                         ),
                         new LegalSection(
                                 "Partial Refunds",
-                                "Partial refunds are clearly communicated during booking."
+                                "Partial refunds, if applicable, are clearly communicated at the time of booking."
                         ),
                         new LegalSection(
                                 "Refund Queries",
@@ -126,4 +147,3 @@ public class LegalService {
         );
     }
 }
-
