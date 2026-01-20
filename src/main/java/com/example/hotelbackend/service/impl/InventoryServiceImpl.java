@@ -95,7 +95,7 @@ public class InventoryServiceImpl implements InventoryService {
 
         if (request.getTotalRooms() != null) {
             inventory.setTotalRooms(request.getTotalRooms());
-            inventory.setAvailableRooms(request.getTotalRooms());
+            inventory.setAvailableRooms(request.getAvailableRooms());
         }
 
         if (request.getPricePerNight() != null) {

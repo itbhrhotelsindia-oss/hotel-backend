@@ -12,7 +12,9 @@ public class UpdateInventoryForDateRequest {
 
     private LocalDate date;
 
-    private Integer totalRooms;      // optional
+    private Integer totalRooms;
+    // optional
+    private Integer availableRooms;
     private Double pricePerNight;    // optional
 }
 
