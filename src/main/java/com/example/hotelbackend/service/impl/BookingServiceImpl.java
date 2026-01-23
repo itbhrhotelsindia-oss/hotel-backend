@@ -4,6 +4,9 @@ import com.example.hotelbackend.dto.booking.CreateBookingRequest;
 import com.example.hotelbackend.dto.booking.CheckAvailabilityRequest;
 import com.example.hotelbackend.dto.booking.AvailabilityResponse;
 import com.example.hotelbackend.model.Booking;
+import com.example.hotelbackend.model.CityHotels;
+import com.example.hotelbackend.model.Hotel;
+import com.example.hotelbackend.repository.CityHotelsRepository;
 import com.example.hotelbackend.service.BookingAvailabilityService;
 import com.example.hotelbackend.service.BookingService;
 import com.example.hotelbackend.service.InventoryReservationService;
@@ -15,6 +18,7 @@ import com.example.hotelbackend.service.EmailService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,17 +28,19 @@ public class BookingServiceImpl implements BookingService {
     private final InventoryReservationService reservationService;
     private final BookingRepository bookingRepository;
     private final EmailService emailService;
+    private final CityHotelsRepository cityHotelsRepository;
 
 
     public BookingServiceImpl(
             BookingAvailabilityService availabilityService,
             InventoryReservationService reservationService,
-            BookingRepository bookingRepository, EmailService emailService
+            BookingRepository bookingRepository, EmailService emailService, CityHotelsRepository cityHotelsRepository
     ) {
         this.availabilityService = availabilityService;
         this.reservationService = reservationService;
         this.bookingRepository = bookingRepository;
         this.emailService = emailService;
+        this.cityHotelsRepository = cityHotelsRepository;
     }
 
     @Override
@@ -108,7 +114,12 @@ public class BookingServiceImpl implements BookingService {
             // ==========================
             // 1️⃣ Guest Email
             // ==========================
-            String guestSubject = "Booking Created - " + booking.getBookingId();
+            String hotelName =
+                    getHotelNameByHotelId(booking.getHotelId());
+
+            String guestSubject =
+                    "Booking Confirmed | " + hotelName +
+                            " | " + booking.getBookingId();
 
             String guestBody =
                     "Dear " + booking.getGuestName() + ",\n\n" +
@@ -131,7 +142,10 @@ public class BookingServiceImpl implements BookingService {
             // ==========================
             // 2️⃣ Owner Email
             // ==========================
-            String ownerSubject = "New Booking Received - " + booking.getBookingId();
+
+            String ownerSubject =
+                    "New Booking Received | " + hotelName +
+                            " | Booking ID: " + booking.getBookingId();
 
             String ownerBody =
                     "New booking received:\n\n" +
@@ -152,6 +166,26 @@ public class BookingServiceImpl implements BookingService {
                     booking.getBookingId() + ": " + e.getMessage());
         }
     }
+
+    private String getHotelNameByHotelId(String hotelId) {
+
+        List<CityHotels> cities = cityHotelsRepository.findAll();
+
+        for (CityHotels city : cities) {
+
+            if (city.getHotels() == null) continue;
+
+            for (Hotel hotel : city.getHotels()) {
+
+                if (hotelId.equals(hotel.getHotelId())) {
+                    return hotel.getName();
+                }
+            }
+        }
+
+        return hotelId; // fallback
+    }
+
 
 }
 
