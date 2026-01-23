@@ -20,6 +20,8 @@ public class RoomType {
 
     private String name;
     private String description;
+    private int maxAdults;     // ✅ NEW
+    private int maxChildren;
     private int maxGuests;
 
     private double basePrice;

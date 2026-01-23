@@ -7,6 +7,7 @@ public class UpdateRoomTypeRequest {
 
     private String name;
     private String description;
-    private int maxGuests;
+    private int maxAdults;     // ✅
+    private int maxChildren;
     private double basePrice;
 }

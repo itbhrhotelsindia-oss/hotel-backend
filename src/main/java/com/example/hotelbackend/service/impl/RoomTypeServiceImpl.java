@@ -34,7 +34,9 @@ public class RoomTypeServiceImpl implements RoomTypeService {
                 .hotelId(request.getHotelId())
                 .name(request.getName())
                 .description(request.getDescription())
-                .maxGuests(request.getMaxGuests())
+                .maxAdults(request.getMaxAdults())
+                .maxChildren(request.getMaxChildren())
+                .maxGuests(request.getMaxAdults() + request.getMaxChildren())
                 .basePrice(request.getBasePrice()) // ✅
                 .isActive(true)
                 .createdAt(Instant.now())
@@ -57,7 +59,10 @@ public class RoomTypeServiceImpl implements RoomTypeService {
 
         roomType.setName(request.getName());
         roomType.setDescription(request.getDescription());
-        roomType.setMaxGuests(request.getMaxGuests());
+        roomType.setMaxAdults(request.getMaxAdults());
+        roomType.setMaxChildren(request.getMaxChildren());
+        roomType.setMaxGuests(
+                request.getMaxAdults() + request.getMaxChildren());
         roomType.setBasePrice(request.getBasePrice());
         return repository.save(roomType);
     }
@@ -89,7 +94,9 @@ public class RoomTypeServiceImpl implements RoomTypeService {
                     .hotelId(request.getHotelId())
                     .name(rt.getName())
                     .description(rt.getDescription())
-                    .maxGuests(rt.getMaxGuests())
+                    .maxAdults(rt.getMaxAdults())
+                    .maxChildren(rt.getMaxChildren())
+                    .maxGuests(rt.getMaxAdults() + rt.getMaxChildren())
                     .basePrice(rt.getBasePrice())
                     .isActive(true)
                     .createdAt(Instant.now())
