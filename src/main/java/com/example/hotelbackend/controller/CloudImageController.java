@@ -1,3 +1,4 @@
+/*
 package com.example.hotelbackend.controller;
 
 import com.cloudinary.Cloudinary;
@@ -138,3 +139,4 @@ public class CloudImageController {
         return max + 1;
     }
 }
+*/

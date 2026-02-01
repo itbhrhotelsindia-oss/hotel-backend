@@ -1,3 +1,4 @@
+/*
 package com.example.hotelbackend.config;
 
 import com.cloudinary.Cloudinary;
@@ -19,3 +20,4 @@ public class CloudinaryConfig {
         ));
     }
 }
+*/

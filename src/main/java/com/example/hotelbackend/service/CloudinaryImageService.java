@@ -1,3 +1,4 @@
+/*
 package com.example.hotelbackend.service;
 
 import com.cloudinary.Cloudinary;
@@ -45,3 +46,4 @@ public class CloudinaryImageService {
     }
 }
 
+*/
