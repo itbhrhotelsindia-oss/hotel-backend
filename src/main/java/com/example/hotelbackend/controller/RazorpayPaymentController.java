@@ -1,8 +1,9 @@
 package com.example.hotelbackend.controller;
+
+import com.example.hotelbackend.dto.rozarpay.RazorpayOrderRequest;
 import com.example.hotelbackend.service.PaymentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 
 @RestController
 @RequestMapping("/api/public/payments/razorpay")
@@ -14,11 +15,12 @@ public class RazorpayPaymentController {
         this.paymentService = paymentService;
     }
 
-    // STEP 1: Create Razorpay Order
     @PostMapping("/order")
-    public ResponseEntity<?> createOrder(@RequestParam String bookingId) {
+    public ResponseEntity<?> createOrder(
+            @RequestBody RazorpayOrderRequest request
+    ) {
         return ResponseEntity.ok(
-                paymentService.createOrder(bookingId)
+                paymentService.createOrder(request.getBookingId())
         );
     }
 }
