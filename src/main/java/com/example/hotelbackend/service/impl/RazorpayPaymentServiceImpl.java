@@ -34,9 +34,6 @@ public class RazorpayPaymentServiceImpl implements PaymentService {
         this.razorpayClient = new RazorpayClient(keyId, keySecret);
     }
 
-    /* =========================
-       CREATE RAZORPAY ORDER
-       ========================= */
     @Override
     public Map<String, Object> createOrder(String bookingId) {
 
@@ -53,19 +50,26 @@ public class RazorpayPaymentServiceImpl implements PaymentService {
 
         try {
             JSONObject options = new JSONObject();
-            options.put("amount", amountInPaise); // paise
+            options.put("amount", amountInPaise);
             options.put("currency", "INR");
             options.put("receipt", bookingId);
             options.put("payment_capture", 1);
 
+            // ✅ 1. Create Razorpay order
             Order order = razorpayClient.orders.create(options);
 
+            String razorpayOrderId = order.get("id").toString();
+
+            // ✅ 2. SAVE orderId in DB (🔥 THIS WAS MISSING)
+            booking.setRazorpayOrderId(razorpayOrderId);
+            bookingRepository.save(booking);
+
+            // ✅ 3. Send to frontend
             Map<String, Object> response = new HashMap<>();
-            response.put("orderId", order.get("id"));
+            response.put("orderId", razorpayOrderId);
             response.put("amount", amountInPaise);
             response.put("currency", "INR");
             response.put("keyId", keyId);
-            response.put("bookingId", bookingId);
 
             return response;
 
@@ -74,16 +78,19 @@ public class RazorpayPaymentServiceImpl implements PaymentService {
         }
     }
 
+
     /* =========================
        VERIFY PAYMENT (WEBHOOK)
        ========================= */
     @Override
     public void verifyAndConfirmPayment(VerifyPaymentRequest request) {
 
-        Booking booking = bookingRepository.findByBookingId(request.getBookingId())
+        Booking booking = bookingRepository
+                .findByRazorpayOrderId(request.getRazorpayOrderId())
                 .orElseThrow(() ->
-                        new RuntimeException("Booking not found")
+                        new RuntimeException("Booking not found for Razorpay orderId")
                 );
+
 
         if ("SUCCESS".equalsIgnoreCase(request.getState())) {
             booking.setStatus("CONFIRMED");

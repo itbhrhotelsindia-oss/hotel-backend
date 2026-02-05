@@ -21,58 +21,42 @@ public class RazorpayWebhookController {
         this.paymentService = paymentService;
     }
 
-    /* =========================
-       RAZORPAY WEBHOOK
-       ========================= */
     @PostMapping("/webhook")
     public ResponseEntity<String> handleWebhook(
             @RequestBody String payload,
             @RequestHeader("X-Razorpay-Signature") String signature
     ) {
         try {
-            // ✅ 1. Verify webhook signature (MANDATORY)
+            // ✅ Verify webhook signature
             Utils.verifyWebhookSignature(payload, signature, webhookSecret);
 
-            System.out.println("🔥 Razorpay webhook verified");
-            System.out.println(payload);
-
-            // ✅ 2. Parse payload
             JSONObject json = new JSONObject(payload);
 
-            JSONObject paymentEntity =
+            JSONObject payment =
                     json.getJSONObject("payload")
                             .getJSONObject("payment")
                             .getJSONObject("entity");
 
-            // ✅ 3. Read bookingId from notes
-            String bookingId =
-                    paymentEntity
-                            .getJSONObject("notes")
-                            .getString("bookingId");
+            // ✅ Always available
+            String razorpayOrderId = payment.getString("order_id");
+            String status = payment.getString("status");
 
-            // Razorpay payment status
-            String status = paymentEntity.getString("status");
-
-            // ✅ 4. Map Razorpay status → internal status
             VerifyPaymentRequest request = new VerifyPaymentRequest();
-            request.setBookingId(bookingId);
+            request.setRazorpayOrderId(razorpayOrderId);
             request.setState(
                     "captured".equalsIgnoreCase(status)
                             ? "SUCCESS"
                             : "FAILED"
             );
 
-            // ✅ 5. Update booking in DB
             paymentService.verifyAndConfirmPayment(request);
 
-            System.out.println("✅ Booking updated via webhook: " + bookingId);
-
-            return ResponseEntity.ok("Webhook processed successfully");
+            System.out.println("✅ Webhook processed for orderId: " + razorpayOrderId);
+            return ResponseEntity.ok("Webhook processed");
 
         } catch (Exception e) {
-            System.err.println("❌ Razorpay webhook failed");
             e.printStackTrace();
-            return ResponseEntity.status(400).body("Invalid webhook");
+            return ResponseEntity.badRequest().body("Invalid webhook");
         }
     }
 }

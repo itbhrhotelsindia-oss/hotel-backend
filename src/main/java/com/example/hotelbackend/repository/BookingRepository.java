@@ -7,6 +7,8 @@ import java.util.Optional;
 
 public interface BookingRepository extends MongoRepository<Booking, String> {
     Optional<Booking> findByBookingId(String bookingId);
+    Optional<Booking> findByRazorpayOrderId(String razorpayOrderId);
+
 }
 
 

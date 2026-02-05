@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class VerifyPaymentRequest {
 
+    private String razorpayOrderId;
     private String bookingId;
     private String state;
 }

@@ -32,6 +32,10 @@ public class Booking {
 
     private String status;      // PENDING, CONFIRMED, CANCELLED
 
+    // ✅ Razorpay fields
+    private String razorpayOrderId;
+    private String razorpayPaymentId;
+
     // Guest info
     private String guestName;
     private String guestEmail;
