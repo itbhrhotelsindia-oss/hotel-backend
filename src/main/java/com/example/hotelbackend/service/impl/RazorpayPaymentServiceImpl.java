@@ -11,13 +11,16 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class RazorpayPaymentServiceImpl implements PaymentService {
 
     private final BookingRepository bookingRepository;
     private final InventoryRollbackService rollbackService;
     private final RazorpayClient razorpayClient;
-    private final String keyId; // ✅ FIXED
+    private final String keyId;
 
     public RazorpayPaymentServiceImpl(
             BookingRepository bookingRepository,
@@ -27,7 +30,7 @@ public class RazorpayPaymentServiceImpl implements PaymentService {
     ) throws Exception {
         this.bookingRepository = bookingRepository;
         this.rollbackService = rollbackService;
-        this.keyId = keyId; // ✅ STORE IT
+        this.keyId = keyId;
         this.razorpayClient = new RazorpayClient(keyId, keySecret);
     }
 
@@ -35,7 +38,7 @@ public class RazorpayPaymentServiceImpl implements PaymentService {
        CREATE RAZORPAY ORDER
        ========================= */
     @Override
-    public JSONObject createOrder(String bookingId) {
+    public Map<String, Object> createOrder(String bookingId) {
 
         Booking booking = bookingRepository.findByBookingId(bookingId)
                 .orElseThrow(() ->
@@ -43,27 +46,25 @@ public class RazorpayPaymentServiceImpl implements PaymentService {
                 );
 
         if (!"PENDING".equalsIgnoreCase(booking.getStatus())) {
-            throw new RuntimeException(
-                    "Payment not allowed for status: " + booking.getStatus()
-            );
+            throw new RuntimeException("Payment not allowed for booking status");
         }
 
-        int amountInPaise = (int) Math.round(booking.getTotalAmount() * 100);
+        int amountInPaise = (int)booking.getTotalAmount() * 100;
 
         try {
             JSONObject options = new JSONObject();
-            options.put("amount", amountInPaise);
+            options.put("amount", amountInPaise); // paise
             options.put("currency", "INR");
             options.put("receipt", bookingId);
             options.put("payment_capture", 1);
 
             Order order = razorpayClient.orders.create(options);
 
-            JSONObject response = new JSONObject();
-            response.put("orderId", order.get("id").toString());
+            Map<String, Object> response = new HashMap<>();
+            response.put("orderId", order.get("id"));
             response.put("amount", amountInPaise);
             response.put("currency", "INR");
-            response.put("keyId", keyId); // ✅ NOW WORKS
+            response.put("keyId", keyId);
             response.put("bookingId", bookingId);
 
             return response;
