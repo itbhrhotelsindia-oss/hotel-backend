@@ -21,11 +21,11 @@ public class LegalService {
                         ),
                         new LegalSection(
                                 "Business Information",
-                                "This website www.bhrhotelsindia.com is owned and operated by BHR Hotels India LLP, a limited liability partnership having its registered office at Plot No GH-4B, Arihant Abode, Greater Noida, Uttar Pradesh – 201310, India."
+                                "This website www.bhrhotelsindia.com is owned and operated by BHR Hotels India LLP, a limited liability partnership having its registered office at B-128, C-49, First Floor, Sector-2, Noida, Gautam Buddha Nagar - 201301,India."
                         ),
                         new LegalSection(
                                 "Contact Details",
-                                "Email: bhrhotelsindia@gmail.com | Phone: 9211283334"
+                                "Email:  info@bhrhotelsindia.com | Phone: 9211283334"
                         ),
                         new LegalSection(
                                 "Nature of Services",
@@ -61,7 +61,7 @@ public class LegalService {
                         ),
                         new LegalSection(
                                 "Grievance Officer",
-                                "Name: Preetam Chaubey | Designation: Grievance Officer | Company: BHR Hotels India LLP | Email: bhrhotelsindia@gmail.com | Phone: 9211283334 | Working Hours: Mon–Fri (9 AM – 6 PM)"
+                                "Designation: Grievance Officer | Company: BHR Hotels India LLP | Email:  info@bhrhotelsindia.com | Phone: 9211283334 | Working Hours: Mon–Fri (9 AM – 6 PM)"
                         )
                 )
         );
@@ -107,7 +107,7 @@ public class LegalService {
                         ),
                         new LegalSection(
                                 "Grievance Officer",
-                                "Name: Preetam Chaubey | Designation: Grievance Officer | Company: BHR Hotels India LLP | Email: bhrhotelsindia@gmail.com | Phone: 9211283334"
+                                "Designation: Grievance Officer | Company: BHR Hotels India LLP | Email:  info@bhrhotelsindia.com | Phone: 9211283334"
                         )
                 )
         );
@@ -141,7 +141,7 @@ public class LegalService {
                         ),
                         new LegalSection(
                                 "Refund Queries",
-                                "Email: bhrhotelsindia@gmail.com | Phone: 9211283334"
+                                "Email:info@bhrhotelsindia.com | Phone: 9211283334"
                         )
                 )
         );
