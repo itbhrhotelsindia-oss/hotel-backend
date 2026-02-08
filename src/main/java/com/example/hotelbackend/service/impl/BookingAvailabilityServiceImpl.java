@@ -8,6 +8,8 @@ import com.example.hotelbackend.repository.RoomTypeRepository;
 import com.example.hotelbackend.service.BookingAvailabilityService;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +63,7 @@ public class BookingAvailabilityServiceImpl implements BookingAvailabilityServic
             inventories.add(inv);
         }
 
-        // ✅ Fetch RoomType explicitly
+        // ✅ Fetch RoomType
         RoomType roomType = roomTypeRepository
                 .findById(request.getRoomTypeId())
                 .orElseThrow(() -> new RuntimeException("RoomType not found"));
@@ -69,7 +71,8 @@ public class BookingAvailabilityServiceImpl implements BookingAvailabilityServic
         int nights = inventories.size();
         int rooms = request.getRoomsRequested();
 
-        double basePrice = inventories.get(0).getPricePerNight();
+        BigDecimal basePrice =
+                BigDecimal.valueOf(inventories.get(0).getPricePerNight());
 
         List<PriceBreakup> options = new ArrayList<>();
 
@@ -82,27 +85,34 @@ public class BookingAvailabilityServiceImpl implements BookingAvailabilityServic
                 rooms
         ));
 
-        // 2️⃣ ROOM + BREAKFAST
+        // 2️⃣ ROOM WITH BREAKFAST – PAY NOW
         options.add(buildOption(
                 "ROOM_WITH_BREAKFAST",
                 "PAY_NOW",
-                basePrice + roomType.getBreakfastPrice(),
+                basePrice.add(BigDecimal.valueOf(roomType.getBreakfastPrice())),
                 nights,
                 rooms
         ));
 
-        // 3️⃣ ROOM + MEALS
+        // 3️⃣ ROOM WITH MEALS – PAY NOW
         options.add(buildOption(
                 "ROOM_WITH_MEALS",
                 "PAY_NOW",
-                basePrice + roomType.getBreakfastPrice() + roomType.getLunchDinnerPrice(),
+                basePrice
+                        .add(BigDecimal.valueOf(roomType.getBreakfastPrice()))
+                        .add(BigDecimal.valueOf(roomType.getLunchDinnerPrice())),
                 nights,
                 rooms
         ));
 
-        // 4️⃣ PAY AT HOTEL (markup on base price)
-        double payAtHotelPrice =
-                basePrice * (1 + roomType.getPayAtHotelMarkupPercent() / 100);
+        // 4️⃣ ROOM ONLY – PAY AT HOTEL (markup)
+        BigDecimal payAtHotelPrice =
+                basePrice.multiply(
+                        BigDecimal.ONE.add(
+                                BigDecimal.valueOf(roomType.getPayAtHotelMarkupPercent())
+                                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
+                        )
+                );
 
         options.add(buildOption(
                 "ROOM_ONLY",
@@ -111,6 +121,27 @@ public class BookingAvailabilityServiceImpl implements BookingAvailabilityServic
                 nights,
                 rooms
         ));
+
+        options.add(buildOption(
+                "ROOM_WITH_BREAKFAST",
+                "PAY_AT_HOTEL",
+                payAtHotelPrice.add(BigDecimal.valueOf(roomType.getBreakfastPrice())),
+                nights,
+                rooms
+        ));
+
+
+        options.add(buildOption(
+                "ROOM_WITH_MEALS",
+                "PAY_AT_HOTEL",
+                payAtHotelPrice
+                        .add(BigDecimal.valueOf(roomType.getBreakfastPrice()))
+                        .add(BigDecimal.valueOf(roomType.getLunchDinnerPrice())),
+                nights,
+                rooms
+        ));
+
+
 
         return new AvailabilityResponse(
                 true,
@@ -125,12 +156,20 @@ public class BookingAvailabilityServiceImpl implements BookingAvailabilityServic
     private PriceBreakup buildOption(
             String type,
             String payMode,
-            double pricePerNight,
+            BigDecimal pricePerNight,
             int nights,
             int rooms
     ) {
-        double total = pricePerNight * nights * rooms;
-        return new PriceBreakup(type, payMode, pricePerNight, total);
+        BigDecimal total =
+                pricePerNight
+                        .multiply(BigDecimal.valueOf(nights))
+                        .multiply(BigDecimal.valueOf(rooms));
+
+        return new PriceBreakup(
+                type,
+                payMode,
+                pricePerNight.setScale(0, RoundingMode.HALF_UP).doubleValue(),
+                total.setScale(0, RoundingMode.HALF_UP).doubleValue()
+        );
     }
 }
-
