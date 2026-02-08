@@ -11,4 +11,8 @@ public class CreateRoomTypeRequest {
     private int maxAdults;     // ✅
     private int maxChildren;
     private double basePrice;
+
+    private double breakfastPrice;
+    private double lunchDinnerPrice;
+    private double payAtHotelMarkupPercent;
 }

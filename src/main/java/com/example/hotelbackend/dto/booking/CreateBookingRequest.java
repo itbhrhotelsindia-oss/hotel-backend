@@ -13,6 +13,12 @@ public class CreateBookingRequest {
 
     private int rooms;
 
+    // ✅ FROM FRONTEND (selected pricing)
+    private String pricingType;     // ROOM_ONLY / ROOM_WITH_BREAKFAST
+    private String payMode;         // PAY_NOW / PAY_AT_HOTEL
+    private double pricePerNight;
+    private double totalAmount;
+
     // Guest details
     private String guestName;
     private String guestEmail;

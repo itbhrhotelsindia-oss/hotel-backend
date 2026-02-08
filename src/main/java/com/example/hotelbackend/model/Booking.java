@@ -28,9 +28,14 @@ public class Booking {
     private int rooms;
     private int nights;
 
+    // ✅ PRICING (selected by user)
+    private String pricingType;     // ROOM_ONLY, ROOM_WITH_BREAKFAST, ROOM_WITH_MEALS
+    private String payMode;         // PAY_NOW, PAY_AT_HOTEL
+    private double pricePerNight;
     private double totalAmount;
 
-    private String status;      // PENDING, CONFIRMED, CANCELLED
+    private String status;          // PENDING, CONFIRMED, CANCELLED
+    // PENDING, CONFIRMED, CANCELLED
 
     // ✅ Razorpay fields
     private String razorpayOrderId;

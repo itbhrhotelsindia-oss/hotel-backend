@@ -38,6 +38,9 @@ public class RoomTypeServiceImpl implements RoomTypeService {
                 .maxChildren(request.getMaxChildren())
                 .maxGuests(request.getMaxAdults() + request.getMaxChildren())
                 .basePrice(request.getBasePrice()) // ✅
+                .breakfastPrice(request.getBreakfastPrice())
+                .lunchDinnerPrice(request.getLunchDinnerPrice())
+                .payAtHotelMarkupPercent(request.getPayAtHotelMarkupPercent())
                 .isActive(true)
                 .createdAt(Instant.now())
                 .build();
@@ -64,6 +67,9 @@ public class RoomTypeServiceImpl implements RoomTypeService {
         roomType.setMaxGuests(
                 request.getMaxAdults() + request.getMaxChildren());
         roomType.setBasePrice(request.getBasePrice());
+        roomType.setBreakfastPrice(request.getBreakfastPrice());
+        roomType.setLunchDinnerPrice(request.getLunchDinnerPrice());
+        roomType.setPayAtHotelMarkupPercent(request.getPayAtHotelMarkupPercent());
         return repository.save(roomType);
     }
 
@@ -98,6 +104,9 @@ public class RoomTypeServiceImpl implements RoomTypeService {
                     .maxChildren(rt.getMaxChildren())
                     .maxGuests(rt.getMaxAdults() + rt.getMaxChildren())
                     .basePrice(rt.getBasePrice())
+                    .breakfastPrice(rt.getBreakfastPrice())
+                    .lunchDinnerPrice(rt.getLunchDinnerPrice())
+                    .payAtHotelMarkupPercent(rt.getPayAtHotelMarkupPercent())
                     .isActive(true)
                     .createdAt(Instant.now())
                     .build();

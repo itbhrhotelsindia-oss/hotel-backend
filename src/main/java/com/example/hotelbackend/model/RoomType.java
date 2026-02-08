@@ -26,6 +26,13 @@ public class RoomType {
 
     private double basePrice;
 
+    /** 🔥 NEW: flat prices per room per night */
+    private double breakfastPrice;            // e.g. 500
+    private double lunchDinnerPrice;           // e.g. 1200
+
+    /** 🔥 NEW: percentage markup for pay-at-hotel */
+    private double payAtHotelMarkupPercent;
+
     private boolean isActive;
 
     private Instant createdAt;
