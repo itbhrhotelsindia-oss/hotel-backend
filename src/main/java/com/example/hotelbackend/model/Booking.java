@@ -47,5 +47,10 @@ public class Booking {
     private String guestPhone;
 
     private LocalDateTime createdAt;
+    // Payment expiry handling
+    private LocalDateTime paymentExpiresAt;   // when booking should auto-cancel
+    private LocalDateTime cancelledAt;         // optional audit
+    private String cancelReason;               // PAYMENT_TIMEOUT / PAYMENT_FAILED
+
 }
 

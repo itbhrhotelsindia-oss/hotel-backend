@@ -68,7 +68,8 @@ public class BookingServiceImpl implements BookingService {
                 LocalDate.parse(request.getCheckOut())
         );
 
-        // 3️⃣ Save booking
+        LocalDateTime now = LocalDateTime.now();
+
         Booking booking = Booking.builder()
                 .bookingId(generateBookingId())
                 .hotelId(request.getHotelId())
@@ -78,17 +79,26 @@ public class BookingServiceImpl implements BookingService {
                 .rooms(request.getRooms())
                 .nights(nights)
 
-                .pricingType(request.getPricingType())   // ROOM_ONLY / ROOM_WITH_BREAKFAST / ROOM_WITH_MEALS
-                .payMode(request.getPayMode())           // PAY_NOW / PAY_AT_HOTEL
+                .pricingType(request.getPricingType())
+                .payMode(request.getPayMode())
                 .pricePerNight(request.getPricePerNight())
                 .totalAmount(request.getTotalAmount())
 
                 .status("PENDING")
+
+                // 🔥 IMPORTANT
+                .createdAt(now)
+                .paymentExpiresAt(
+                        "PAY_NOW".equals(request.getPayMode())
+                                ? now.plusMinutes(5)   // ⏱ configurable
+                                : null
+                )
+
                 .guestName(request.getGuestName())
                 .guestEmail(request.getGuestEmail())
                 .guestPhone(request.getGuestPhone())
-                .createdAt(LocalDateTime.now())
                 .build();
+
 
         Booking savedBooking = bookingRepository.save(booking);
 
