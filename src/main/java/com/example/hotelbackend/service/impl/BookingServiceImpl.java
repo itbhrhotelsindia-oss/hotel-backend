@@ -1,17 +1,12 @@
 package com.example.hotelbackend.service.impl;
 
-import com.example.hotelbackend.dto.booking.CreateBookingRequest;
-import com.example.hotelbackend.dto.booking.CheckAvailabilityRequest;
-import com.example.hotelbackend.dto.booking.AvailabilityResponse;
+import com.example.hotelbackend.dto.booking.*;
 import com.example.hotelbackend.model.Booking;
 import com.example.hotelbackend.model.CityHotels;
 import com.example.hotelbackend.model.Hotel;
 import com.example.hotelbackend.repository.BookingRepository;
 import com.example.hotelbackend.repository.CityHotelsRepository;
-import com.example.hotelbackend.service.BookingAvailabilityService;
-import com.example.hotelbackend.service.BookingService;
-import com.example.hotelbackend.service.InventoryReservationService;
-import com.example.hotelbackend.service.EmailService;
+import com.example.hotelbackend.service.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -46,9 +41,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public Booking createPendingBooking(CreateBookingRequest request) {
 
-        /* =========================
-           1️⃣ Availability check
-           ========================= */
+        // 1️⃣ Availability check
         CheckAvailabilityRequest availabilityRequest = new CheckAvailabilityRequest();
         availabilityRequest.setHotelId(request.getHotelId());
         availabilityRequest.setRoomTypeId(request.getRoomTypeId());
@@ -61,9 +54,7 @@ public class BookingServiceImpl implements BookingService {
             throw new RuntimeException("Rooms not available");
         }
 
-        /* =========================
-           2️⃣ Reserve inventory
-           ========================= */
+        // 2️⃣ Reserve inventory
         reservationService.reserveInventory(
                 request.getHotelId(),
                 request.getRoomTypeId(),
@@ -77,9 +68,7 @@ public class BookingServiceImpl implements BookingService {
                 LocalDate.parse(request.getCheckOut())
         );
 
-        /* =========================
-           3️⃣ Create booking
-           ========================= */
+        // 3️⃣ Save booking
         Booking booking = Booking.builder()
                 .bookingId(generateBookingId())
                 .hotelId(request.getHotelId())
@@ -89,9 +78,8 @@ public class BookingServiceImpl implements BookingService {
                 .rooms(request.getRooms())
                 .nights(nights)
 
-                // ✅ Pricing info (from frontend selection)
-                .pricingType(request.getPricingType())
-                .payMode(request.getPayMode())
+                .pricingType(request.getPricingType())   // ROOM_ONLY / ROOM_WITH_BREAKFAST / ROOM_WITH_MEALS
+                .payMode(request.getPayMode())           // PAY_NOW / PAY_AT_HOTEL
                 .pricePerNight(request.getPricePerNight())
                 .totalAmount(request.getTotalAmount())
 
@@ -104,97 +92,116 @@ public class BookingServiceImpl implements BookingService {
 
         Booking savedBooking = bookingRepository.save(booking);
 
-        /* =========================
-           4️⃣ Send Emails (NON-BLOCKING)
-           ========================= */
-        sendBookingEmails(savedBooking);
+        // 4️⃣ Send booking emails
+        sendBookingCreatedEmails(savedBooking);
 
         return savedBooking;
     }
 
-    /* =========================
-       EMAIL LOGIC
-       ========================= */
-    private void sendBookingEmails(Booking booking) {
+    /* ===========================
+       📧 BOOKING CREATED EMAILS
+       =========================== */
+    private void sendBookingCreatedEmails(Booking booking) {
 
-        try {
-            String hotelName = getHotelNameByHotelId(booking.getHotelId());
+        String hotelName = getHotelNameByHotelId(booking.getHotelId());
 
-            boolean isPayNow = "PAY_NOW".equalsIgnoreCase(booking.getPayMode());
+        // ---------- Guest Email ----------
+        String guestSubject =
+                "Booking Created | " + hotelName + " | " + booking.getBookingId();
 
-            /* ---------- Guest Email ---------- */
-            String guestSubject =
-                    "Booking Created | " + hotelName + " | " + booking.getBookingId();
+        String paymentMessage =
+                "PAY_NOW".equalsIgnoreCase(booking.getPayMode())
+                        ? "Please proceed with payment to confirm your booking."
+                        : "Please pay the booking amount at the hotel during check-in.";
 
-            String guestPaymentLine = isPayNow
-                    ? "Payment Status: PAYMENT PENDING\nPlease proceed with payment to confirm your booking."
-                    : "Payment Mode: PAY AT HOTEL\nPlease pay the below amount at the hotel during check-in.";
+        String guestBody =
+                "Dear " + booking.getGuestName() + ",\n\n" +
+                        "Your booking has been created successfully.\n\n" +
+                        "Booking ID: " + booking.getBookingId() + "\n" +
+                        "Hotel: " + hotelName + "\n" +
+                        "Check-in: " + booking.getCheckIn() + "\n" +
+                        "Check-out: " + booking.getCheckOut() + "\n" +
+                        "Rooms: " + booking.getRooms() + "\n\n" +
+                        "Booking Type: " + formatPricingType(booking.getPricingType()) + "\n" +
+                        "Total Amount: ₹" + booking.getTotalAmount() + "\n\n" +
+                        "Payment Status: PAYMENT PENDING\n" +
+                        paymentMessage + "\n\n" +
+                        "Thank you for choosing BHR Hotels India.\n";
 
-            String guestBody =
-                    "Dear " + booking.getGuestName() + ",\n\n" +
-                            "Your booking has been created successfully.\n\n" +
-                            "Booking ID: " + booking.getBookingId() + "\n" +
-                            "Hotel: " + hotelName + "\n" +
-                            "Check-in: " + booking.getCheckIn() + "\n" +
-                            "Check-out: " + booking.getCheckOut() + "\n" +
-                            "Rooms: " + booking.getRooms() + "\n\n" +
+        emailService.sendEmail(
+                booking.getGuestEmail(),
+                guestSubject,
+                guestBody
+        );
 
-                            "Booking Type: " + formatPricingType(booking.getPricingType()) + "\n" +
-                            "Payment Mode: " + formatPayMode(booking.getPayMode()) + "\n" +
-                            "Price per Night: ₹" + booking.getPricePerNight() + "\n" +
-                            "Total Amount: ₹" + booking.getTotalAmount() + "\n\n" +
+        // ---------- Owner Email ----------
+        String ownerSubject =
+                "New Booking | " + hotelName + " | " + booking.getBookingId();
 
-                            guestPaymentLine + "\n\n" +
-                            "Status: PENDING\n\n" +
-                            "Thank you for choosing BHR Hotels India.";
+        String ownerBody =
+                "New booking received:\n\n" +
+                        "Booking ID: " + booking.getBookingId() + "\n" +
+                        "Guest Name: " + booking.getGuestName() + "\n" +
+                        "Phone: " + booking.getGuestPhone() + "\n" +
+                        "Check-in: " + booking.getCheckIn() + "\n" +
+                        "Check-out: " + booking.getCheckOut() + "\n" +
+                        "Rooms: " + booking.getRooms() + "\n" +
+                        "Booking Type: " + formatPricingType(booking.getPricingType()) + "\n" +
+                        "Payment Mode: " + booking.getPayMode() + "\n" +
+                        "Total Amount: ₹" + booking.getTotalAmount() + "\n" +
+                        "Status: PAYMENT PENDING";
 
-            emailService.sendEmail(
-                    booking.getGuestEmail(),
-                    guestSubject,
-                    guestBody
-            );
-
-            /* ---------- Owner Email ---------- */
-            String ownerSubject =
-                    "New Booking | " + hotelName + " | " + booking.getBookingId();
-
-            String ownerPaymentLine = isPayNow
-                    ? "Payment Status: PAYMENT PENDING (Guest will pay online)"
-                    : "Payment Mode: PAY AT HOTEL (Guest will pay at hotel)";
-
-            String ownerBody =
-                    "New booking received:\n\n" +
-                            "Booking ID: " + booking.getBookingId() + "\n" +
-                            "Guest Name: " + booking.getGuestName() + "\n" +
-                            "Guest Phone: " + booking.getGuestPhone() + "\n" +
-                            "Guest Email: " + booking.getGuestEmail() + "\n\n" +
-
-                            "Booking Type: " + formatPricingType(booking.getPricingType()) + "\n" +
-                            "Payment Mode: " + formatPayMode(booking.getPayMode()) + "\n" +
-                            "Price per Night: ₹" + booking.getPricePerNight() + "\n" +
-                            "Total Amount: ₹" + booking.getTotalAmount() + "\n\n" +
-
-                            ownerPaymentLine;
-
-            emailService.notifyOwner(ownerSubject, ownerBody);
-
-        } catch (Exception e) {
-            // ❗ Email failure must NOT break booking flow
-            System.err.println("Email failed for booking "
-                    + booking.getBookingId() + ": " + e.getMessage());
-        }
+        emailService.notifyOwner(ownerSubject, ownerBody);
     }
 
-    /* =========================
-       HELPERS
-       ========================= */
+    /* ===========================
+       📧 WELCOME EMAIL (PAYMENT SUCCESS)
+       =========================== */
+    public void sendWelcomeEmail(Booking booking) {
+
+        String hotelName = getHotelNameByHotelId(booking.getHotelId());
+
+        String subject =
+                "Welcome to " + hotelName + " | Booking Confirmed | " + booking.getBookingId();
+
+        String body =
+                "Dear " + booking.getGuestName() + ",\n\n" +
+                        "Greetings from " + hotelName + "!\n\n" +
+                        "We are delighted to confirm your reservation with us.\n\n" +
+                        "Booking ID: " + booking.getBookingId() + "\n" +
+                        "Check-in: " + booking.getCheckIn() + "\n" +
+                        "Check-out: " + booking.getCheckOut() + "\n" +
+                        "Rooms: " + booking.getRooms() + "\n" +
+                        "Booking Type: " + formatPricingType(booking.getPricingType()) + "\n\n" +
+                        "We look forward to welcoming you and ensuring you have a memorable stay.\n\n" +
+                        "Warm regards,\n" +
+                        hotelName + "\n" +
+                        "BHR Hotels India";
+
+        emailService.sendEmail(
+                booking.getGuestEmail(),
+                subject,
+                body
+        );
+    }
+
+    /* ===========================
+       🔧 HELPERS
+       =========================== */
     private String generateBookingId() {
         return "BHR-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
+    private String formatPricingType(String type) {
+        return switch (type) {
+            case "ROOM_WITH_BREAKFAST" -> "Room with Breakfast";
+            case "ROOM_WITH_MEALS" -> "Room with Meals";
+            default -> "Room Only";
+        };
+    }
+
     private String getHotelNameByHotelId(String hotelId) {
         List<CityHotels> cities = cityHotelsRepository.findAll();
-
         for (CityHotels city : cities) {
             if (city.getHotels() == null) continue;
             for (Hotel hotel : city.getHotels()) {
@@ -204,13 +211,5 @@ public class BookingServiceImpl implements BookingService {
             }
         }
         return hotelId;
-    }
-
-    private String formatPricingType(String type) {
-        return type.replace("_", " ");
-    }
-
-    private String formatPayMode(String mode) {
-        return mode.replace("_", " ");
     }
 }

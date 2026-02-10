@@ -29,7 +29,6 @@ public class RazorpayPaymentServiceImpl implements PaymentService {
     private final EmailService emailService;
     private final CityHotelsRepository cityHotelsRepository;
 
-
     public RazorpayPaymentServiceImpl(
             BookingRepository bookingRepository,
             InventoryRollbackService rollbackService,
@@ -46,7 +45,9 @@ public class RazorpayPaymentServiceImpl implements PaymentService {
         this.razorpayClient = new RazorpayClient(keyId, keySecret);
     }
 
-
+    /* =========================
+       CREATE RAZORPAY ORDER
+       ========================= */
     @Override
     public Map<String, Object> createOrder(String bookingId) {
 
@@ -59,7 +60,7 @@ public class RazorpayPaymentServiceImpl implements PaymentService {
             throw new RuntimeException("Payment not allowed for booking status");
         }
 
-        int amountInPaise = (int)booking.getTotalAmount() * 100;
+        int amountInPaise = (int) booking.getTotalAmount() * 100;
 
         try {
             JSONObject options = new JSONObject();
@@ -68,18 +69,13 @@ public class RazorpayPaymentServiceImpl implements PaymentService {
             options.put("receipt", bookingId);
             options.put("payment_capture", 1);
 
-            // ✅ 1. Create Razorpay order
             Order order = razorpayClient.orders.create(options);
 
-            String razorpayOrderId = order.get("id").toString();
-
-            // ✅ 2. SAVE orderId in DB (🔥 THIS WAS MISSING)
-            booking.setRazorpayOrderId(razorpayOrderId);
+            booking.setRazorpayOrderId(order.get("id").toString());
             bookingRepository.save(booking);
 
-            // ✅ 3. Send to frontend
             Map<String, Object> response = new HashMap<>();
-            response.put("orderId", razorpayOrderId);
+            response.put("orderId", booking.getRazorpayOrderId());
             response.put("amount", amountInPaise);
             response.put("currency", "INR");
             response.put("keyId", keyId);
@@ -90,7 +86,6 @@ public class RazorpayPaymentServiceImpl implements PaymentService {
             throw new RuntimeException("Razorpay order creation failed", e);
         }
     }
-
 
     /* =========================
        VERIFY PAYMENT (WEBHOOK)
@@ -109,7 +104,8 @@ public class RazorpayPaymentServiceImpl implements PaymentService {
             booking.setStatus("CONFIRMED");
             bookingRepository.save(booking);
 
-            sendPaymentSuccessEmails(booking);
+            sendWelcomeEmailToGuest(booking);
+            sendPaymentSuccessEmailToOwner(booking);
 
         } else {
 
@@ -121,39 +117,72 @@ public class RazorpayPaymentServiceImpl implements PaymentService {
         }
     }
 
-    private void sendPaymentSuccessEmails(Booking booking) {
+    /* =========================
+       ✅ GUEST WELCOME EMAIL
+       ========================= */
+    private void sendWelcomeEmailToGuest(Booking booking) {
 
         String hotelName = getHotelNameByHotelId(booking.getHotelId());
 
-        String subjectGuest =
-                "Payment Successful | Booking Confirmed | " +
-                        hotelName + " | " + booking.getBookingId();
+        String subject =
+                "Welcome to " + hotelName +
+                        " | Booking Confirmed | " + booking.getBookingId();
 
-        String bodyGuest =
+        String body =
                 "Dear " + booking.getGuestName() + ",\n\n" +
-                        "Your payment has been received successfully.\n\n" +
+                        "Warm greetings from " + hotelName + "!\n\n" +
+                        "We are delighted to confirm your reservation and look forward " +
+                        "to welcoming you for a memorable stay.\n\n" +
+
+                        "📌 Booking Details\n" +
                         "Booking ID: " + booking.getBookingId() + "\n" +
                         "Hotel: " + hotelName + "\n" +
-                        "Booking Type: " + booking.getPricingType() + "\n" +
-                        "Payment Mode: Pay Now\n" +
+                        "Stay Type: " + booking.getPricingType().replace("_", " ") + "\n" +
                         "Check-in: " + booking.getCheckIn() + "\n" +
                         "Check-out: " + booking.getCheckOut() + "\n" +
-                        "Total Amount: ₹" + booking.getTotalAmount() + "\n\n" +
-                        "Status: CONFIRMED\n\n" +
-                        "Thank you for choosing BHR Hotels India.";
+                        "Rooms: " + booking.getRooms() + "\n\n" +
+
+                        "If you need any assistance before arrival, " +
+                        "please feel free to reach out to us.\n\n" +
+
+                        "We wish you a pleasant and comfortable stay.\n\n" +
+                        "Warm regards,\n" +
+                        hotelName + "\n" +
+                        "BHR Hotels India";
 
         emailService.sendEmail(
                 booking.getGuestEmail(),
-                subjectGuest,
-                bodyGuest
-        );
-
-        emailService.notifyOwner(
-                subjectGuest,
-                bodyGuest
+                subject,
+                body
         );
     }
 
+    /* =========================
+       OWNER PAYMENT EMAIL
+       ========================= */
+    private void sendPaymentSuccessEmailToOwner(Booking booking) {
+
+        String hotelName = getHotelNameByHotelId(booking.getHotelId());
+
+        String subject =
+                "Payment Received | Booking Confirmed | " +
+                        hotelName + " | " + booking.getBookingId();
+
+        String body =
+                "Payment successfully received for booking.\n\n" +
+                        "Booking ID: " + booking.getBookingId() + "\n" +
+                        "Guest Name: " + booking.getGuestName() + "\n" +
+                        "Hotel: " + hotelName + "\n" +
+                        "Booking Type: " + booking.getPricingType() + "\n" +
+                        "Total Amount: ₹" + booking.getTotalAmount() + "\n" +
+                        "Status: CONFIRMED";
+
+        emailService.notifyOwner(subject, body);
+    }
+
+    /* =========================
+       PAYMENT FAILURE EMAILS
+       ========================= */
     private void sendPaymentFailureEmails(Booking booking) {
 
         String hotelName = getHotelNameByHotelId(booking.getHotelId());
@@ -163,10 +192,10 @@ public class RazorpayPaymentServiceImpl implements PaymentService {
                         hotelName + " | " + booking.getBookingId();
 
         String body =
-                "Payment failed for booking.\n\n" +
+                "Unfortunately, payment failed for the following booking:\n\n" +
                         "Booking ID: " + booking.getBookingId() + "\n" +
                         "Hotel: " + hotelName + "\n" +
-                        "Status: CANCELLED\n";
+                        "Status: CANCELLED";
 
         emailService.sendEmail(
                 booking.getGuestEmail(),
@@ -177,25 +206,23 @@ public class RazorpayPaymentServiceImpl implements PaymentService {
         emailService.notifyOwner(subject, body);
     }
 
+    /* =========================
+       HOTEL NAME RESOLVER
+       ========================= */
     private String getHotelNameByHotelId(String hotelId) {
 
         List<CityHotels> cities = cityHotelsRepository.findAll();
 
         for (CityHotels city : cities) {
-
             if (city.getHotels() == null) continue;
 
             for (Hotel hotel : city.getHotels()) {
-
                 if (hotelId.equals(hotel.getHotelId())) {
                     return hotel.getName();
                 }
             }
         }
 
-        // fallback (never fail email/booking)
-        return hotelId;
+        return hotelId; // safe fallback
     }
-
-
 }
