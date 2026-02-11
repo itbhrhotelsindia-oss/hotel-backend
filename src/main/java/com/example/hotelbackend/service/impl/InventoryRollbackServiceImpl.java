@@ -30,7 +30,7 @@ public class InventoryRollbackServiceImpl implements InventoryRollbackService {
             query.addCriteria(
                     Criteria.where("hotelId").is(booking.getHotelId())
                             .and("roomTypeId").is(booking.getRoomTypeId())
-                            .and("date").is(date)
+                            .and("date").is(date.toString())  // 🔥 IMPORTANT FIX
             );
 
             Update update = new Update()
@@ -39,5 +39,6 @@ public class InventoryRollbackServiceImpl implements InventoryRollbackService {
             mongoTemplate.updateFirst(query, update, "room_inventory");
         }
     }
+
 }
 

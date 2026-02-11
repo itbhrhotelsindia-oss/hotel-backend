@@ -89,10 +89,13 @@ public class BookingServiceImpl implements BookingService {
                 // 🔥 IMPORTANT
                 .createdAt(now)
                 .paymentExpiresAt(
-                        "PAY_NOW".equals(request.getPayMode())
-                                ? now.plusMinutes(5)   // ⏱ configurable
+                        "PAY_NOW".equalsIgnoreCase(
+                                request.getPayMode().replace(" ", "_")
+                        )
+                                ? now.plusMinutes(5)
                                 : null
                 )
+
 
                 .guestName(request.getGuestName())
                 .guestEmail(request.getGuestEmail())
