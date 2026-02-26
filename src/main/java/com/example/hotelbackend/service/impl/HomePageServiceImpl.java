@@ -150,24 +150,35 @@ public class HomePageServiceImpl implements HomePageService {
 
         /* CONTACT SECTION */
         if (dto.getContactSection() != null) {
+
             HomePageContent.ContactSection cs =
                     entity.getContactSection() != null
                             ? entity.getContactSection()
                             : new HomePageContent.ContactSection();
 
             cs.setCompanyName(dto.getContactSection().getCompanyName());
+            cs.setBrandLine(dto.getContactSection().getBrandLine());
             cs.setCompanySince(dto.getContactSection().getCompanySince());
+
             cs.setReservationPhone(dto.getContactSection().getReservationPhone());
+            cs.setTravelWeddingPhone(dto.getContactSection().getTravelWeddingPhone());
+            cs.setCorporateTieupPhone(dto.getContactSection().getCorporateTieupPhone());
+            cs.setHotelRegistrationPhone(dto.getContactSection().getHotelRegistrationPhone());
+
             cs.setHotelPhone(dto.getContactSection().getHotelPhone());
+
             cs.setVisitUs(dto.getContactSection().getVisitUs());
             cs.setEmail(dto.getContactSection().getEmail());
             cs.setWatsApp(dto.getContactSection().getWatsApp());
+
             cs.setCorporateAddress(dto.getContactSection().getCorporateAddress());
             cs.setSupportHours(dto.getContactSection().getSupportHours());
+
             cs.setSocialLinks(dto.getContactSection().getSocialLinks());
 
             entity.setContactSection(cs);
         }
+
     }
 
     /* =========================
@@ -290,21 +301,35 @@ public class HomePageServiceImpl implements HomePageService {
         return dto;
     }
 
-    private HomePageData.ContactSection toContactDto(HomePageContent.ContactSection e) {
+    private HomePageData.ContactSection toContactDto(
+            HomePageContent.ContactSection e) {
+
         if (e == null) return null;
 
-        HomePageData.ContactSection dto = new HomePageData.ContactSection();
+        HomePageData.ContactSection dto =
+                new HomePageData.ContactSection();
+
         dto.setCompanyName(e.getCompanyName());
+        dto.setBrandLine(e.getBrandLine());
         dto.setCompanySince(e.getCompanySince());
+
         dto.setReservationPhone(e.getReservationPhone());
+        dto.setTravelWeddingPhone(e.getTravelWeddingPhone());
+        dto.setCorporateTieupPhone(e.getCorporateTieupPhone());
+        dto.setHotelRegistrationPhone(e.getHotelRegistrationPhone());
+
         dto.setHotelPhone(e.getHotelPhone());
+
         dto.setVisitUs(e.getVisitUs());
         dto.setEmail(e.getEmail());
         dto.setWatsApp(e.getWatsApp());
+
         dto.setCorporateAddress(e.getCorporateAddress());
         dto.setSupportHours(e.getSupportHours());
+
         dto.setSocialLinks(e.getSocialLinks());
 
         return dto;
     }
+
 }

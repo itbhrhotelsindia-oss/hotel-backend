@@ -77,9 +77,18 @@ public class HomePageContent {
     public static class ContactSection {
 
         private String companyName;
+
+        // ✅ NEW
+        private String brandLine;
+
         private String companySince;
 
+        // ✅ All Contact Numbers
         private String reservationPhone;
+        private String travelWeddingPhone;
+        private String corporateTieupPhone;
+        private String hotelRegistrationPhone;
+
         private String hotelPhone;
 
         private String visitUs;
@@ -91,6 +100,7 @@ public class HomePageContent {
 
         private Map<String, String> socialLinks;
     }
+
 
 
     @Data

@@ -80,9 +80,18 @@ public class HomePageData {
     public static class ContactSection {
 
         private String companyName;
+
+        // Brand Line
+        private String brandLine;
+
         private String companySince;
 
+        // ✅ Contact Numbers
         private String reservationPhone;
+        private String travelWeddingPhone;
+        private String corporateTieupPhone;
+        private String hotelRegistrationPhone;
+
         private String hotelPhone;
 
         private String visitUs;
@@ -92,9 +101,11 @@ public class HomePageData {
         private String corporateAddress;
         private String supportHours;
 
-        // socialLinks is now a MAP instead of List
+        // Social media links
         private Map<String, String> socialLinks;
     }
+
+
 
 
     @Data
