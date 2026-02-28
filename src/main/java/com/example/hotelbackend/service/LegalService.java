@@ -21,7 +21,7 @@ public class LegalService {
                         ),
                         new LegalSection(
                                 "Business Information",
-                                "This website www.bhrhotelsindia.com is owned and operated by BHR Hotels India LLP, a limited liability partnership having its registered office at B-128, C-49, First Floor, Sector-2, Noida, Gautam Buddha Nagar - 201301,India."
+                                "This website www.hotaality.com is owned and operated by BHR Hotels India - A Brand of Hotaality RevTech Private Limited , a limited liability partnership having its registered office at B-128, C-49, First Floor, Sector-2, Noida, Gautam Buddha Nagar - 201301,India."
                         ),
                         new LegalSection(
                                 "Contact Details",
@@ -29,7 +29,7 @@ public class LegalService {
                         ),
                         new LegalSection(
                                 "Nature of Services",
-                                "BHR Hotels India LLP provides hotel booking, room reservation, and hospitality-related services through its website."
+                                "BHR Hotels India - A Brand of Hotaality RevTech Private Limited  provides hotel booking, room reservation, and hospitality-related services through its website."
                         ),
                         new LegalSection(
                                 "User Obligations",
@@ -41,11 +41,11 @@ public class LegalService {
                         ),
                         new LegalSection(
                                 "Limitation of Liability",
-                                "BHR Hotels India LLP shall not be liable for website downtime, third-party service failures, or circumstances beyond reasonable control."
+                                "BHR Hotels India - A Brand of Hotaality RevTech Private Limited  shall not be liable for website downtime, third-party service failures, or circumstances beyond reasonable control."
                         ),
                         new LegalSection(
                                 "Indemnity",
-                                "Users agree to indemnify and hold harmless BHR Hotels India LLP from any claims arising due to misuse of the platform or violation of these terms."
+                                "Users agree to indemnify and hold harmless BHR Hotels India - A Brand of Hotaality RevTech Private Limited  from any claims arising due to misuse of the platform or violation of these terms."
                         ),
                         new LegalSection(
                                 "Force Majeure",
@@ -53,7 +53,7 @@ public class LegalService {
                         ),
                         new LegalSection(
                                 "Intellectual Property",
-                                "All content on this website, including text, graphics, and design, is the intellectual property of BHR Hotels India LLP."
+                                "All content on this website, including text, graphics, and design, is the intellectual property of BHR Hotels India - A Brand of Hotaality RevTech Private Limited ."
                         ),
                         new LegalSection(
                                 "Governing Law and Jurisdiction",
@@ -61,7 +61,7 @@ public class LegalService {
                         ),
                         new LegalSection(
                                 "Grievance Officer",
-                                "Designation: Grievance Officer | Company: BHR Hotels India LLP | Email:  info@bhrhotelsindia.com | Phone: 9211283334 | Working Hours: Mon–Fri (9 AM – 6 PM)"
+                                "Designation: Grievance Officer | Company: BHR Hotels India - A Brand of Hotaality RevTech Private Limited  | Email:  info@bhrhotelsindia.com | Phone: 9211283334 | Working Hours: Mon–Fri (9 AM – 6 PM)"
                         )
                 )
         );
@@ -75,7 +75,7 @@ public class LegalService {
                 List.of(
                         new LegalSection(
                                 "Introduction",
-                                "This Privacy Policy describes how BHR Hotels India LLP collects, uses, and protects your personal data. Our services are offered only within India, and data is processed in accordance with applicable Indian laws."
+                                "This Privacy Policy describes how BHR Hotels India - A Brand of Hotaality RevTech Private Limited  collects, uses, and protects your personal data. Our services are offered only within India, and data is processed in accordance with applicable Indian laws."
                         ),
                         new LegalSection(
                                 "Information We Collect",
@@ -107,7 +107,7 @@ public class LegalService {
                         ),
                         new LegalSection(
                                 "Grievance Officer",
-                                "Designation: Grievance Officer | Company: BHR Hotels India LLP | Email:  info@bhrhotelsindia.com | Phone: 9211283334"
+                                "Designation: Grievance Officer | Company: BHR Hotels India - A Brand of Hotaality RevTech Private Limited  | Email:  info@bhrhotelsindia.com | Phone: 9211283334"
                         )
                 )
         );
@@ -121,7 +121,7 @@ public class LegalService {
                 List.of(
                         new LegalSection(
                                 "Policy Overview",
-                                "This Refund and Cancellation Policy is issued by BHR Hotels India LLP."
+                                "This Refund and Cancellation Policy is issued by BHR Hotels India - A Brand of Hotaality RevTech Private Limited ."
                         ),
                         new LegalSection(
                                 "Booking Cancellation",
