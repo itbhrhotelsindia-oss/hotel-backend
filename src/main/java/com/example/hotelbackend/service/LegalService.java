@@ -21,7 +21,7 @@ public class LegalService {
                         ),
                         new LegalSection(
                                 "Business Information",
-                                "This website www.hotaality.com is owned and operated by BHR Hotels India - A Brand of Hotaality RevTech Private Limited , a limited liability partnership having its registered office at B-128, C-49, First Floor, Sector-2, Noida, Gautam Buddha Nagar - 201301,India."
+                                "This website www.hotaality.com is owned and operated by BHR Hotels India - A Brand of Hotaality RevTech Private Limited , a limited liability partnership having its registered office at 898, 8th Floor, Gaur City Mall, Sector-4, Greater Noida West, Gautam Buddha Nagar - 201306,India."
                         ),
                         new LegalSection(
                                 "Contact Details",
