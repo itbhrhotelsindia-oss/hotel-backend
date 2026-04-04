@@ -6,4 +6,5 @@ import com.example.hotelbackend.dto.HomePageData;
 public interface HomePageService {
     HomePageData getHomePageData();
     HomePageData updateHomePageData(HomePageData homePageData);
+    HomePageData getHomePageDataWithInactive();
 }

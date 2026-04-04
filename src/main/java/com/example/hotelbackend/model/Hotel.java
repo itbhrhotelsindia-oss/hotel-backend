@@ -17,5 +17,6 @@ public class Hotel {
     private String address;
     private String imageUrl;
 
-    private List<String> services; // ✅ NEW FIELD (MICE, Wedding, Vacation)
+    private List<String> services;
+    private Boolean active = true;// ✅ NEW FIELD (MICE, Wedding, Vacation)
 }

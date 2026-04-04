@@ -37,6 +37,15 @@ public class CityHotelsController {
         return ResponseEntity.ok(service.create(cityHotels));
     }
 
+    // ⭐ GET ALL CITIES INCLUDING INACTIVE
+    @GetMapping("/all")
+    public ResponseEntity<List<CityHotels>> getAllWithInactive() {
+
+        return ResponseEntity.ok(
+                service.getAllWithInactive()
+        );
+    }
+
     // ⭐ BULK INSERT — Add Multiple Cities at Once
     @PostMapping("/bulk")
     public ResponseEntity<List<CityHotels>> createBulk(@RequestBody List<CityHotels> list) {

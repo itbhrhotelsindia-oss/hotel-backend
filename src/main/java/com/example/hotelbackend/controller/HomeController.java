@@ -21,4 +21,13 @@ public class HomeController {
     public HomePageData updateHomePage(@RequestBody HomePageData homePageData) {
         return homePageService.updateHomePageData(homePageData);
     }
+
+    // ⭐ NEW Admin API (active + inactive)
+    @GetMapping("/all")
+    public HomePageData getHomePageAll() {
+
+        return homePageService
+                .getHomePageDataWithInactive();
+    }
+
 }

@@ -126,5 +126,6 @@ public class HomePageData {
         private String layout;   // "text-left-image-right" or "image-left-text-right"
         private String text;
         private String imageUrl;
+        private Boolean active = true;
     }
 }
