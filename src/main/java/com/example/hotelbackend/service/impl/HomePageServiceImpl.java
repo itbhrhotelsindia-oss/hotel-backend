@@ -194,29 +194,57 @@ public class HomePageServiceImpl implements HomePageService {
 
         if (e.getBlocks() != null) {
             dto.setBlocks(
+
                     e.getBlocks().stream()
+
+                            // ⭐ FILTER inactive brands
+                            .filter(block ->
+                                    block.getActive() == null ||
+                                            block.getActive()
+                            )
+
                             .map(this::toBrandBlockDto)
+
                             .collect(Collectors.toList())
             );
         }
         return dto;
     }
 
-    private HomePageData.BrandBlock toBrandBlockDto(HomePageContent.BrandBlock e) {
-        HomePageData.BrandBlock dto = new HomePageData.BrandBlock();
+    private HomePageData.BrandBlock toBrandBlockDto(
+            HomePageContent.BrandBlock e) {
+
+        HomePageData.BrandBlock dto =
+                new HomePageData.BrandBlock();
+
         dto.setName(e.getName());
         dto.setLayout(e.getLayout());
         dto.setText(e.getText());
         dto.setImageUrl(e.getImageUrl());
+
+        dto.setActive(e.getActive()); // ⭐ ADD
+
         return dto;
     }
 
-    private HomePageContent.BrandBlock toBrandBlockEntity(HomePageData.BrandBlock dto) {
-        HomePageContent.BrandBlock b = new HomePageContent.BrandBlock();
+    private HomePageContent.BrandBlock toBrandBlockEntity(
+            HomePageData.BrandBlock dto) {
+
+        HomePageContent.BrandBlock b =
+                new HomePageContent.BrandBlock();
+
         b.setName(dto.getName());
         b.setLayout(dto.getLayout());
         b.setText(dto.getText());
         b.setImageUrl(dto.getImageUrl());
+
+        // ⭐ Default active true
+        if (dto.getActive() == null) {
+            b.setActive(true);
+        } else {
+            b.setActive(dto.getActive());
+        }
+
         return b;
     }
 
@@ -328,6 +356,61 @@ public class HomePageServiceImpl implements HomePageService {
         dto.setSupportHours(e.getSupportHours());
 
         dto.setSocialLinks(e.getSocialLinks());
+
+        return dto;
+    }
+
+
+    @Override
+    public HomePageData getHomePageDataWithInactive() {
+
+        return repository.findFirstBy()
+                .map(this::toDtoWithoutFilter)
+                .orElseGet(HomePageData::new);
+    }
+
+    private HomePageData.BrandDynamicSection
+    toBrandDynamicDtoWithoutFilter(
+            HomePageContent.BrandDynamicSection e) {
+
+        if (e == null) return null;
+
+        HomePageData.BrandDynamicSection dto =
+                new HomePageData.BrandDynamicSection();
+
+        dto.setTitle(e.getTitle());
+        dto.setDescription(e.getDescription());
+
+        if (e.getBlocks() != null) {
+
+            // ⭐ No active filtering
+            dto.setBlocks(
+                    e.getBlocks().stream()
+                            .map(this::toBrandBlockDto)
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return dto;
+    }
+
+    private HomePageData toDtoWithoutFilter(HomePageContent e) {
+
+        HomePageData dto = new HomePageData();
+
+        dto.setHeroImages(e.getHeroImages());
+
+        // ⭐ No filtering here
+        dto.setBrandSection(
+                toBrandDynamicDtoWithoutFilter(
+                        e.getBrandSection()
+                )
+        );
+
+        dto.setEventsSection(toEventsDto(e.getEventsSection()));
+        dto.setAboutSection(toAboutDto(e.getAboutSection()));
+        dto.setBrandBanner(toBrandBannerDto(e.getBrandBanner()));
+        dto.setContactSection(toContactDto(e.getContactSection()));
 
         return dto;
     }

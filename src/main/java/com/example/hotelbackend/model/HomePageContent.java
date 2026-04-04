@@ -121,5 +121,6 @@ public class HomePageContent {
         private String layout;
         private String text;
         private String imageUrl;
+        private Boolean active = true;
     }
 }

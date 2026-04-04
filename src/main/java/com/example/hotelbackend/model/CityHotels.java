@@ -22,5 +22,6 @@ public class CityHotels {
 
     private String cityImageUrl;  // ✅ NEW FIELD (City banner image)
 
-    private List<Hotel> hotels;   // List of hotels
+    private List<Hotel> hotels;
+    private Boolean active = true;// List of hotels
 }

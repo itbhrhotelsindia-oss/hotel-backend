@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CityHotelsService {
@@ -22,14 +23,72 @@ public class CityHotelsService {
        READ OPERATIONS
        ========================= */
 
-    public List<CityHotels> getAll() {
+
+    public List<CityHotels> getAllWithInactive() {
+
+        // ⭐ No filtering — return raw data
         return repo.findAll();
     }
 
-    public CityHotels getById(String id) {
-        return repo.findById(id).orElse(null);
-    }
+    public List<CityHotels> getAll() {
 
+        List<CityHotels> cities = repo.findAll();
+
+        return cities.stream()
+
+                // ⭐ Filter inactive cities
+                .filter(city ->
+                        city.getActive() == null ||
+                                city.getActive()
+                )
+
+                .peek(city -> {
+
+                    if (city.getHotels() == null) return;
+
+                    // ⭐ Filter inactive hotels
+                    city.setHotels(
+                            city.getHotels()
+                                    .stream()
+                                    .filter(hotel ->
+                                            hotel.getActive() == null ||
+                                                    hotel.getActive()
+                                    )
+                                    .collect(Collectors.toList())
+                    );
+
+                })
+
+                .collect(Collectors.toList());
+    }
+    public CityHotels getById(String id) {
+
+        CityHotels city = repo.findById(id).orElse(null);
+
+        if (city == null) {
+            return null;
+        }
+
+        // ⭐ Hide inactive city
+        if (city.getActive() != null && !city.getActive()) {
+            return null;
+        }
+
+        if (city.getHotels() != null) {
+
+            city.setHotels(
+                    city.getHotels()
+                            .stream()
+                            .filter(hotel ->
+                                    hotel.getActive() == null ||
+                                            hotel.getActive()
+                            )
+                            .collect(Collectors.toList())
+            );
+        }
+
+        return city;
+    }
     /* =========================
        CREATE
        ========================= */
@@ -97,6 +156,11 @@ public class CityHotelsService {
 
         for (Hotel hotel : cityHotels.getHotels()) {
 
+            // ⭐ Set default active = true
+            if (hotel.getActive() == null) {
+                hotel.setActive(true);
+            }
+
             if (hotel.getHotelId() == null || hotel.getHotelId().isEmpty()) {
 
                 hotel.setHotelId(
@@ -128,6 +192,10 @@ public class CityHotelsService {
 
             for (var hotel : city.getHotels()) {
 
+                if (hotel.getActive() != null && !hotel.getActive()) {
+                    continue;
+                }
+
                 result.add(new HotelLookupResponse(
                         city.getId(),
                         city.getName(),
@@ -153,16 +221,25 @@ public class CityHotelsService {
 
         for (Hotel hotel : newHotels) {
 
+            // ⭐ Ensure active default = true
+            if (hotel.getActive() == null) {
+                hotel.setActive(true);
+            }
+
+            // ⭐ Generate hotel ID if missing
             if (hotel.getHotelId() == null || hotel.getHotelId().isEmpty()) {
+
                 hotel.setHotelId(
                         generateHotelId(
                                 city.getName().toUpperCase().replace(" ", ""),
                                 index
                         )
                 );
+
                 index++;
             }
 
+            // ⭐ Add hotel to city
             city.getHotels().add(hotel);
         }
 
