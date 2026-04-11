@@ -7,6 +7,12 @@ import com.example.hotelbackend.repository.RoomInventoryRepository;
 import com.example.hotelbackend.repository.RoomTypeRepository;
 import com.example.hotelbackend.service.BookingAvailabilityService;
 import org.springframework.stereotype.Service;
+import com.example.hotelbackend.repository.AgentInventoryPriceRepository;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import com.example.hotelbackend.model.AgentInventoryPrice;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -19,13 +25,15 @@ public class BookingAvailabilityServiceImpl implements BookingAvailabilityServic
 
     private final RoomInventoryRepository inventoryRepository;
     private final RoomTypeRepository roomTypeRepository;
+    private final AgentInventoryPriceRepository agentPriceRepository;
 
     public BookingAvailabilityServiceImpl(
             RoomInventoryRepository inventoryRepository,
-            RoomTypeRepository roomTypeRepository
+            RoomTypeRepository roomTypeRepository, AgentInventoryPriceRepository agentPriceRepository
     ) {
         this.inventoryRepository = inventoryRepository;
         this.roomTypeRepository = roomTypeRepository;
+        this.agentPriceRepository = agentPriceRepository;
     }
 
     @Override
@@ -71,8 +79,38 @@ public class BookingAvailabilityServiceImpl implements BookingAvailabilityServic
         int nights = inventories.size();
         int rooms = request.getRoomsRequested();
 
+        String agentId = getAgentIdIfAgent();
+
+        double pricePerNight =
+                inventories.get(0).getPricePerNight();
+
+
+        if (agentId != null) {
+
+            String date =
+                    inventories.get(0).getDate();
+
+            AgentInventoryPrice agentPrice =
+                    agentPriceRepository
+                            .findByAgentIdAndHotelIdAndRoomTypeIdAndDate(
+                                    agentId,
+                                    request.getHotelId(),
+                                    request.getRoomTypeId(),
+                                    date
+                            )
+                            .orElse(null);
+
+            if (agentPrice != null) {
+
+                pricePerNight =
+                        agentPrice.getRoomOnlyPrice();
+
+            }
+
+        }
+
         BigDecimal basePrice =
-                BigDecimal.valueOf(inventories.get(0).getPricePerNight());
+                BigDecimal.valueOf(pricePerNight);
 
         List<PriceBreakup> options = new ArrayList<>();
 
@@ -171,5 +209,36 @@ public class BookingAvailabilityServiceImpl implements BookingAvailabilityServic
                 pricePerNight.setScale(0, RoundingMode.HALF_UP).doubleValue(),
                 total.setScale(0, RoundingMode.HALF_UP).doubleValue()
         );
+    }
+
+    private String getAgentIdIfAgent() {
+
+        Authentication auth =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+        if (auth == null)
+            return null;
+
+        Object principal = auth.getPrincipal();
+
+        if (principal instanceof UserDetails user) {
+
+            boolean isAgent =
+                    user.getAuthorities()
+                            .stream()
+                            .anyMatch(a ->
+                                    a.getAuthority()
+                                            .equals("ROLE_AGENT")
+                            );
+
+            if (isAgent) {
+                return user.getUsername();
+            }
+
+        }
+
+        return null;
     }
 }
