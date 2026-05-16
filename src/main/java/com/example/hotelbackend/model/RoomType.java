@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.List;
 
 @Data
 @Builder
@@ -25,6 +26,8 @@ public class RoomType {
     private int maxGuests;
 
     private double basePrice;
+    private List<String> images;
+    private List<String> amenities;
 
     /** 🔥 NEW: flat prices per room per night */
     private double breakfastPrice;            // e.g. 500

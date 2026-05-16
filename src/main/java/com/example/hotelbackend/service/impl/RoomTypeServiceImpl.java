@@ -38,6 +38,8 @@ public class RoomTypeServiceImpl implements RoomTypeService {
                 .maxChildren(request.getMaxChildren())
                 .maxGuests(request.getMaxAdults() + request.getMaxChildren())
                 .basePrice(request.getBasePrice()) // ✅
+                .images(request.getImages())
+                .amenities(request.getAmenities())
                 .breakfastPrice(request.getBreakfastPrice())
                 .lunchDinnerPrice(request.getLunchDinnerPrice())
                 .payAtHotelMarkupPercent(request.getPayAtHotelMarkupPercent())
@@ -67,6 +69,8 @@ public class RoomTypeServiceImpl implements RoomTypeService {
         roomType.setMaxGuests(
                 request.getMaxAdults() + request.getMaxChildren());
         roomType.setBasePrice(request.getBasePrice());
+        roomType.setImages(request.getImages());
+        roomType.setAmenities(request.getAmenities());
         roomType.setBreakfastPrice(request.getBreakfastPrice());
         roomType.setLunchDinnerPrice(request.getLunchDinnerPrice());
         roomType.setPayAtHotelMarkupPercent(request.getPayAtHotelMarkupPercent());
@@ -104,6 +108,8 @@ public class RoomTypeServiceImpl implements RoomTypeService {
                     .maxChildren(rt.getMaxChildren())
                     .maxGuests(rt.getMaxAdults() + rt.getMaxChildren())
                     .basePrice(rt.getBasePrice())
+                    .images(rt.getImages())
+                    .amenities(rt.getAmenities())
                     .breakfastPrice(rt.getBreakfastPrice())
                     .lunchDinnerPrice(rt.getLunchDinnerPrice())
                     .payAtHotelMarkupPercent(rt.getPayAtHotelMarkupPercent())
