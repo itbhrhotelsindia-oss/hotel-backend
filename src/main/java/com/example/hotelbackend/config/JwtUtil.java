@@ -12,7 +12,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    // ✅ MUST be at least 32 characters for HS256
+    // Must be 32+ chars
     private static final String SECRET =
             "hotel-backend-super-secret-key-12345";
 
@@ -23,27 +23,90 @@ public class JwtUtil {
             SECRET.getBytes(StandardCharsets.UTF_8)
     );
 
-    public String generateToken(String ownerId, String username, String role) {
+
+    /* =====================================================
+       GENERATE TOKEN
+       ===================================================== */
+
+    public String generateToken(
+            String userId,
+            String username,
+            String role
+    ) {
 
         return Jwts.builder()
-                .setSubject(ownerId)
+                .setSubject(userId) // userId stored here
                 .claim("username", username)
                 .claim("role", role)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .setExpiration(
+                        new Date(
+                                System.currentTimeMillis()
+                                        + EXPIRATION
+                        )
+                )
                 .signWith(key)
                 .compact();
     }
 
-    public String getOwnerId(String token) {
+
+    /* =====================================================
+       GET USER ID
+       ===================================================== */
+
+    public String getUserId(String token) {
+
         return getClaims(token).getSubject();
+
     }
 
+
+    /* =====================================================
+       GET USERNAME (IMPORTANT FIX)
+       ===================================================== */
+
+    public String extractUsername(String token) {
+
+        return getClaims(token)
+                .get("username", String.class);
+
+    }
+
+
+    /* =====================================================
+       GET ROLE
+       ===================================================== */
+
+    public String extractRole(String token) {
+
+        return getClaims(token)
+                .get("role", String.class);
+
+    }
+
+
+    /* =====================================================
+       INTERNAL CLAIMS METHOD
+       ===================================================== */
+
     private Claims getClaims(String token) {
+
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+
     }
+
+    /* =====================================================
+   GET OWNER ID (FOR OWNER CONTROLLER)
+   ===================================================== */
+
+    public String getOwnerId(String token) {
+
+        return getClaims(token).getSubject();
+
+    }
+
 }

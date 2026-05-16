@@ -10,4 +10,9 @@ public interface HotelRepository extends MongoRepository<Hotel, String> {
     List<Hotel> findByCityIgnoreCase(String city);
 
     List<Hotel> findDistinctByCityNotNull();
+
+
+    List<Hotel> findByHotelIdIn(
+            List<String> hotelIds
+    );
 }
