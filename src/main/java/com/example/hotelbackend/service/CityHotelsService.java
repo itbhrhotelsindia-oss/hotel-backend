@@ -247,6 +247,21 @@ public class CityHotelsService {
     }
 
 
+    public CityHotels toggleHotelStatus(String cityId, String hotelId, boolean active) {
+        CityHotels city = repo.findById(cityId)
+                .orElseThrow(() -> new RuntimeException("City not found"));
+
+        if (city.getHotels() == null) throw new RuntimeException("No hotels in this city");
+
+        city.getHotels().stream()
+                .filter(h -> hotelId.equals(h.getHotelId()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Hotel not found"))
+                .setActive(active);
+
+        return repo.save(city);
+    }
+
     public void deleteHotelByCityId(String cityId, String hotelId) {
 
         CityHotels city = repo.findById(cityId)

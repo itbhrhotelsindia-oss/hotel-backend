@@ -45,6 +45,7 @@ public class OwnerController {
         List<CityHotels> cities = cityRepo.findAll();
 
         for (CityHotels city : cities) {
+            if (city.getHotels() == null) continue;
             for (Hotel hotel : city.getHotels()) {
                 if (owner.getHotelIds().contains(hotel.getHotelId())) {
                     response.add(
