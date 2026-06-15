@@ -4,19 +4,33 @@ import com.example.hotelbackend.dto.HotelLookupResponse;
 import com.example.hotelbackend.model.CityHotels;
 import com.example.hotelbackend.model.Hotel;
 import com.example.hotelbackend.repository.CityHotelsRepository;
+import com.example.hotelbackend.repository.HotelDetailsRepository;
+import com.example.hotelbackend.repository.RoomInventoryRepository;
+import com.example.hotelbackend.repository.RoomTypeRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class CityHotelsService {
 
     private final CityHotelsRepository repo;
+    private final HotelDetailsRepository hotelDetailsRepo;
+    private final RoomTypeRepository roomTypeRepo;
+    private final RoomInventoryRepository roomInventoryRepo;
 
-    public CityHotelsService(CityHotelsRepository repo) {
+    public CityHotelsService(CityHotelsRepository repo,
+                             HotelDetailsRepository hotelDetailsRepo,
+                             RoomTypeRepository roomTypeRepo,
+                             RoomInventoryRepository roomInventoryRepo) {
         this.repo = repo;
+        this.hotelDetailsRepo = hotelDetailsRepo;
+        this.roomTypeRepo = roomTypeRepo;
+        this.roomInventoryRepo = roomInventoryRepo;
     }
 
     /* =========================
@@ -148,11 +162,8 @@ public class CityHotelsService {
             return;
         }
 
-        String cityCode = cityHotels.getName()
-                .toUpperCase()
-                .replace(" ", "");
-
-        int index = 1;
+        String cityCode = toCityCode(cityHotels.getName());
+        Set<String> usedIds = collectAllHotelIds();
 
         for (Hotel hotel : cityHotels.getHotels()) {
 
@@ -161,22 +172,53 @@ public class CityHotelsService {
                 hotel.setActive(true);
             }
 
+            // ⭐ Preserve existing ids (so edits don't break references),
+            //    generate a unique internal id only when one is missing.
             if (hotel.getHotelId() == null || hotel.getHotelId().isEmpty()) {
-
-                hotel.setHotelId(
-                        generateHotelId(cityCode, index)
-                );
-
-                index++;
+                String id = generateUniqueHotelId(cityCode, usedIds);
+                hotel.setHotelId(id);
+                usedIds.add(id);
+            } else {
+                usedIds.add(hotel.getHotelId());
             }
         }
     }
 
     /**
-     * HOTEL-JIMCORBETT-001
+     * Collects every hotelId currently in use across all cities,
+     * so generated ids are guaranteed globally unique.
      */
-    private String generateHotelId(String cityCode, int index) {
-        return "HOTEL-" + cityCode + "-" + String.format("%03d", index);
+    private Set<String> collectAllHotelIds() {
+        Set<String> ids = new HashSet<>();
+        for (CityHotels city : repo.findAll()) {
+            if (city.getHotels() == null) continue;
+            for (Hotel h : city.getHotels()) {
+                if (h.getHotelId() != null && !h.getHotelId().isEmpty()) {
+                    ids.add(h.getHotelId());
+                }
+            }
+        }
+        return ids;
+    }
+
+    private String toCityCode(String cityName) {
+        return cityName == null
+                ? "HOTEL"
+                : cityName.toUpperCase().replaceAll("[^A-Z0-9]", "");
+    }
+
+    /**
+     * Generates a unique hotelId of the form HOTEL-JIMCORBETT-001,
+     * incrementing the suffix until it no longer collides with usedIds.
+     */
+    private String generateUniqueHotelId(String cityCode, Set<String> usedIds) {
+        int index = 1;
+        String candidate;
+        do {
+            candidate = "HOTEL-" + cityCode + "-" + String.format("%03d", index);
+            index++;
+        } while (usedIds.contains(candidate));
+        return candidate;
     }
 
 
@@ -217,7 +259,8 @@ public class CityHotelsService {
             city.setHotels(new ArrayList<>());
         }
 
-        int index = city.getHotels().size() + 1;
+        String cityCode = toCityCode(city.getName());
+        Set<String> usedIds = collectAllHotelIds();
 
         for (Hotel hotel : newHotels) {
 
@@ -226,23 +269,25 @@ public class CityHotelsService {
                 hotel.setActive(true);
             }
 
-            // ⭐ Generate hotel ID if missing
-            if (hotel.getHotelId() == null || hotel.getHotelId().isEmpty()) {
-
-                hotel.setHotelId(
-                        generateHotelId(
-                                city.getName().toUpperCase().replace(" ", ""),
-                                index
-                        )
-                );
-
-                index++;
-            }
+            // ⭐ hotelId is ALWAYS generated internally — never trusted from the
+            //    client — and guaranteed unique across all cities. This prevents
+            //    two hotels ever sharing the same id.
+            String id = generateUniqueHotelId(cityCode, usedIds);
+            hotel.setHotelId(id);
+            usedIds.add(id);
 
             // ⭐ Add hotel to city
             city.getHotels().add(hotel);
         }
 
+        return repo.save(city);
+    }
+
+    // ⭐ TOGGLE CITY ACTIVE STATUS
+    public CityHotels toggleCityStatus(String cityId, boolean active) {
+        CityHotels city = repo.findById(cityId)
+                .orElseThrow(() -> new RuntimeException("City not found"));
+        city.setActive(active);
         return repo.save(city);
     }
 
@@ -280,6 +325,12 @@ public class CityHotelsService {
         }
 
         repo.save(city);
+
+        // ⭐ Cascade delete: when a hotel is removed, the id and every record
+        //    keyed by it is removed too — no orphaned details/rooms/inventory.
+        hotelDetailsRepo.deleteById(hotelId);
+        roomTypeRepo.deleteByHotelId(hotelId);
+        roomInventoryRepo.deleteByHotelId(hotelId);
     }
 
 

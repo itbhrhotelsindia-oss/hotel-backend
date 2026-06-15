@@ -90,6 +90,14 @@ public class CityHotelsController {
         return ResponseEntity.ok(service.toggleHotelStatus(cityId, hotelId, active));
     }
 
+    // ⭐ TOGGLE CITY ACTIVE STATUS
+    @PatchMapping("/{cityId}/status")
+    public ResponseEntity<CityHotels> toggleCityStatus(
+            @PathVariable String cityId,
+            @RequestParam boolean active) {
+        return ResponseEntity.ok(service.toggleCityStatus(cityId, active));
+    }
+
     // ⭐ DELETE HOTEL BY CITY ID + HOTEL ID
     @DeleteMapping("/{cityId}/hotels/{hotelId}")
     public ResponseEntity<String> deleteHotelByCity(

@@ -13,4 +13,6 @@ public interface RoomTypeRepository extends MongoRepository<RoomType, String> {
             String hotelId,
             String name
     );
+
+    long deleteByHotelId(String hotelId);
 }

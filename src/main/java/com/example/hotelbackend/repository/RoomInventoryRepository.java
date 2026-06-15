@@ -69,4 +69,6 @@ public interface RoomInventoryRepository extends MongoRepository<RoomInventory, 
             LocalDate checkOut,
             int minAvailableRooms
     );
+
+    long deleteByHotelId(String hotelId);
 }
