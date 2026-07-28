@@ -30,6 +30,12 @@ public class SecurityConfig {
                 // ── CORS preflight ────────────────────────────────────────
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
+                // ── Error dispatch ────────────────────────────────────────
+                // Without this, Spring forwards every 404/500 to /error, which
+                // falls through to anyRequest().authenticated() and is returned
+                // as a 403 — masking the real status code.
+                .requestMatchers("/error").permitAll()
+
                 // ── Auth (login) ──────────────────────────────────────────
                 .requestMatchers("/api/auth/**").permitAll()
 
