@@ -1,2 +1,5 @@
 /target/
 *.class
+
+# macOS
+.DS_Store
